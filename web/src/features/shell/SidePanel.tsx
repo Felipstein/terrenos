@@ -1,6 +1,7 @@
 import type { Terreno } from '../../types/terreno'
 import type { SortOrder } from '../../lib/terreno-filters'
 import { Button } from '../../components/Button/Button'
+import { Logo } from '../../components/Logo/Logo'
 import { TerrenoSearch } from '../list/TerrenoSearch'
 import { TerrenoTable } from '../list/TerrenoTable'
 
@@ -31,11 +32,14 @@ export function SidePanel({
   return (
     <aside className="hidden h-full w-[420px] shrink-0 flex-col border-r border-line bg-surface md:flex">
       <header className="flex items-center justify-between gap-3 border-b border-line px-4 pb-3 pt-4">
-        <div>
-          <h1 className="font-serif text-2xl font-semibold leading-none text-ink">Terrenos</h1>
-          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-taupe">
-            mapa &amp; cadastro
-          </p>
+        <div className="flex items-center gap-2">
+          <Logo className="h-8 w-8" />
+          <div>
+            <h1 className="font-serif text-2xl font-semibold leading-none text-ink">Terrenos</h1>
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-taupe">
+              mapa &amp; cadastro
+            </p>
+          </div>
         </div>
         <Button className="h-9 px-3 text-xs" onClick={onAdd}>
           + Novo

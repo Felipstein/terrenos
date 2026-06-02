@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { TextField } from '../../components/TextField/TextField'
 import { Button } from '../../components/Button/Button'
+import { Logo } from '../../components/Logo/Logo'
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Informe o usuário'),
@@ -40,6 +41,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
         className="flex w-full max-w-sm flex-col gap-5 rounded-sm border border-line bg-surface p-6 shadow-sm"
       >
         <div className="text-center">
+          <Logo className="mx-auto mb-2 h-12 w-12" />
           <h1 className="font-serif text-3xl font-semibold text-ink">Terrenos</h1>
           <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.12em] text-taupe">
             acesso restrito
