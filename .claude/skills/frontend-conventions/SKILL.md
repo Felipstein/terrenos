@@ -53,7 +53,7 @@ interface TerrenoService { list(): Promise<Terreno[]> }
 
 ## Camada de service (importante)
 O front **não conhece de onde os dados vêm**. Toda leitura/escrita passa por um **service** em `services/`.
-- **Agora**: implementação em **localStorage**.
+- **Agora**: terrenos = **mock em memória** (reseta no reload); sessão de login = localStorage.
 - **Depois**: quando o backend existir, troca-se a implementação do service — **a UI não muda**.
 - O service expõe um **`interface`** (contrato) e retorna **tipos do domínio** (`terreno-schema`), nunca detalhes de storage/HTTP.
 
@@ -65,6 +65,11 @@ interface TerrenoService {
 }
 export function createLocalTerrenoService(): TerrenoService { ... }
 ```
+
+O mesmo vale pra **auth**: `AuthService` esconde a sessão (hoje localStorage, fake), trocável por backend.
+
+## Formulários
+**Sempre** react-hook-form + zod + @hookform/resolvers. Detalhe e receita na skill `forms`.
 
 ## Testes
 - Teste **só o que é negócio/regra**: services, validações, cálculos (ex: área, formatação de preço).

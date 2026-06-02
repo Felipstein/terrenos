@@ -1,27 +1,28 @@
 ---
 name: map-deeplinks
-description: Use ao implementar o botão de rota, abrir um local no Google Maps nativo do celular, ou construir URLs de mapa/rota a partir de lat/lng. Independe da biblioteca de mapa usada na tela.
+description: Use ao trabalhar com Google Maps no app — botão de rota (deep-link nativo), ler coordenadas de um link colado, ou reverse-geocoding (endereço a partir de lat/lng).
+governs:
+  - web/src/lib/maps.ts
+  - web/src/lib/parse-maps-url.ts
+  - web/src/features/map/**
+  - web/src/features/terreno-detail/RouteButton.tsx
 ---
 
-# Deep-links pro Google Maps nativo
+# Google Maps — rota, parsing e geocoding
 
-O botão de rota deve abrir o **app nativo do Google Maps** (ou a versão web, se não instalado) já com a rota até o terreno. Isso **independe** da lib usada pra desenhar o mapa na tela (Leaflet/Mapbox/Google JS/etc).
-
-## Rota até o destino (direções)
+## 1. Rota até o destino (deep-link nativo)
+O botão de rota abre o **app nativo do Google Maps** com a rota. Vale pra qualquer provider de mapa na tela.
 ```
 https://www.google.com/maps/dir/?api=1&destination=LAT,LNG
 ```
-- No celular, o sistema abre o app nativo automaticamente.
-- Opcional: `&travelmode=driving`.
+`lib/maps.ts` → `buildDirectionsUrl(lat, lng)`. É só um `<a href>`, sem SDK nem chave.
 
-## Só mostrar um ponto
-```
-https://www.google.com/maps/search/?api=1&query=LAT,LNG
-```
+## 2. Ler coordenadas de um link colado
+`lib/parse-maps-url.ts` → `parseLatLngFromGoogleMapsUrl(url)`: extrai `{lat,lng}` de URLs **completas** do Google (`@lat,lng`, `!3dLAT!4dLNG`, `q=/ll=/query=`). Parse 100% no navegador.
+- **Link curto** (`maps.app.goo.gl`) **não** funciona ainda (precisa resolver redirect → backend). Retorna `null`.
 
-## Boas práticas
-- Use sempre `LAT,LNG` (vindo do `terreno-schema`), não endereço em texto — evita ambiguidade.
-- O botão é um `<a href>` simples; **não precisa de SDK nem chave de API** do Google.
-- Faça o alvo de toque grande e óbvio (ver `ui-conventions`).
+## 3. Reverse geocoding (endereço a partir do ponto)
+`features/map/useReverseGeocode.ts` usa o geocoding do Google (via `@vis.gl/react-google-maps`). Retorna `null` se a lib não carregou (ex: sem chave). Usado no cadastro pra autopreencher a `rua`.
 
-Referência: Google Maps URLs (`api=1`).
+## Provider e chave
+Mapa = Google Maps (`@vis.gl/react-google-maps`), chave em `VITE_GOOGLE_MAPS_API_KEY`, `mapId` em `VITE_GOOGLE_MAPS_MAP_ID`. **Restringir a chave por domínio + teto de cota** no Google Cloud pra não gerar custo.

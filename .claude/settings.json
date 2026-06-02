@@ -19,7 +19,8 @@
       {
         "matcher": "Write|Edit|MultiEdit",
         "hooks": [
-          { "type": "command", "command": "node .claude/hooks/contract-guard.mjs" }
+          { "type": "command", "command": "node .claude/hooks/contract-guard.mjs" },
+          { "type": "command", "command": "node .claude/hooks/skill-guard.mjs" }
         ]
       }
     ]

@@ -11,4 +11,5 @@ Você revisa mudanças no Terrenos.
 - Cheque também:
   - mobile-first respeitado (skill `ui-conventions`)?
   - mexeu em API e atualizou `contract/openapi.yaml`? (skill `api-contract`)
+  - mudou comportamento de um arquivo governado por skill e atualizou a skill dona? (skill `skill-authoring`)
 - Reporte achados como `arquivo:linha` com o **porquê**. Seja específico, evite genérico.

@@ -1,27 +1,40 @@
 ---
 name: terreno-schema
-description: Use ao modelar, exibir, cadastrar ou validar dados de um terreno (preço, rua, área, medidas, fotos, link). Define os campos canônicos de um Terreno. Independe de onde os dados ficam guardados.
+description: Use ao modelar, exibir, cadastrar, editar ou validar dados de um terreno (preço, rua, área, largura, comprimento, link). Define os campos canônicos e a regra de auto-cálculo das medidas.
+governs:
+  - web/src/types/terreno.ts
+  - web/src/lib/terreno-validation.ts
+  - web/src/lib/area.ts
+  - web/src/lib/format.ts
+  - web/src/services/terreno-service.ts
+  - web/src/services/seed.ts
+  - web/src/features/terreno-form/**
+  - web/src/features/terreno-detail/TerrenoInfo.tsx
 ---
 
 # Modelo de dados: Terreno
 
-Campos canônicos de um terreno. Independe de onde os dados ficam guardados (backend, JSON, etc).
+Campos canônicos (independe de onde os dados ficam guardados).
 
 | Campo | Tipo | Obrigatório | Notas |
 |-------|------|-------------|-------|
 | `id` | string | sim | identificador único |
-| `nome` | string | não | apelido do terreno (ex: "Terreno da esquina") |
-| `rua` | string | sim | nome da rua / endereço |
-| `preco` | number | sim | em BRL — padronize a unidade (reais ou centavos) e mantenha consistente |
+| `rua` | string | sim | endereço; autopreenchido via geocoding, **editável** |
+| `preco` | number | sim | em BRL |
 | `lat` | number | sim | latitude do pin |
 | `lng` | number | sim | longitude do pin |
 | `areaTotal` | number | sim | área total em m² |
-| `medidas` | array | não | comprimentos dos lados (ex: `["frente 12m", "fundo 30m"]`) |
-| `fotos` | string[] | não | URLs das fotos da galeria |
-| `fotoPreview` | string | não | URL da foto grande de destaque |
-| `link` | string | não | link externo (anúncio do corretor) |
+| `largura` | number | não | metros |
+| `comprimento` | number | não | metros |
+| `link` | string | não | anúncio do corretor |
 
-## Regras
-- `lat`/`lng` posicionam o pin e alimentam o deep-link de rota → skill `map-deeplinks`.
-- `preco`: padronize a unidade e documente no contrato quando a rota existir.
-- Quando esse dado virar resposta de API, ele deve refletir no `contract/openapi.yaml` → skill `api-contract`.
+> Removidos do v1: `nome`, `medidas`, `fotos`, `fotoPreview`.
+
+## Auto-cálculo das medidas
+`total = largura × comprimento`. Preenchidos 2, o 3º se completa. Lógica pura e testada em `lib/area.ts` (`recalcArea`) — **não** reimplementar inline.
+
+## Validação
+A fonte da validação é o zod em `lib/terreno-validation.ts` (`terrenoSchema`); o form consome via `zodResolver` (skill `forms`). `TerrenoInput = z.infer<typeof terrenoSchema>` e `Terreno = TerrenoInput & { id }`.
+
+## Storage
+**Mock em memória** via `terreno-service.ts` (`createMemoryTerrenoService`): começa do `seed.ts` e **reseta a cada reload** (sem persistência — é dado de exemplo). O service esconde a origem; quando virar API, troca-se a implementação e reflete no `contract/openapi.yaml` (skill `api-contract`).
