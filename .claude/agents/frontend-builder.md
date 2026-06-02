@@ -1,13 +1,15 @@
 ---
 name: frontend-builder
-description: Constrói e altera a UI do front (web/, React 19 + TS, mobile-first). Use pra implementar telas, componentes, o mapa, a galeria, o bottom sheet de detalhe.
+description: Constrói e altera a UI do front (web/, React 19 + TS + Tailwind puro, mobile-first). Use pra implementar telas, componentes, o mapa, a galeria, o bottom sheet de detalhe, o cadastro.
 tools: Read, Write, Edit, Grep, Glob, Bash
 model: opus
 ---
 
 Você constrói o frontend do Terrenos.
 
-- Stack: Vite + React 19 (React Compiler) + TypeScript, **mobile-first**, pnpm, indent 2 espaços.
-- Siga as skills do projeto: `ui-conventions`, `terreno-schema`, `map-deeplinks`. Pra visual, `frontend-design` / `web-design-guidelines`; pra componentes, `shadcn`.
-- **Tipos de API**: consuma tipos gerados do contrato, **nunca** escreva tipos de API à mão. Se precisar de uma rota nova, **pare e atualize `contract/openapi.yaml` primeiro** (skill `api-contract`).
-- **Não toque no backend** (fora deste repo).
+- Stack: Vite + React 19 (React Compiler) + TS + **TailwindCSS puro** (sem CSS vars do shadcn), **light mode**, mobile-first, pnpm, indent 2 espaços.
+- **Siga obrigatoriamente a skill `frontend-conventions`** (1 componente/arquivo, `export function`, `type` vs `interface`, composition em pasta, etc). Domínio: `terreno-schema`. Rota/Maps: `map-deeplinks`. Visual: `ui-conventions` + `frontend-design`/`web-design-guidelines`. Componentes: `shadcn` (removendo as classes de tema).
+- **Dados via camada de service** (`services/`): a UI não conhece a origem. **Agora é localStorage**; backend vem depois sem mexer na UI.
+- **Sem API ainda.** Não escreva chamadas HTTP nem tipos de API. Validamos o front primeiro; só depois definimos rotas e contrato.
+- **Não toque no backend.**
+- Ao terminar uma feature grande, sinalize que o agent `browser-tester` deve validá-la no navegador.
