@@ -1,0 +1,89 @@
+import { useRef, useState, type DragEvent } from 'react'
+import { cn } from '../../lib/cn'
+import type { ImageUpload } from './types'
+import { ImageThumb } from './ImageThumb'
+
+type ImageUploaderProps = {
+  images: ImageUpload[]
+  principalId: string | undefined
+  onAddFiles: (files: FileList | File[]) => void
+  onRetry: (id: string) => void
+  onRemove: (id: string) => void
+  onSetPrincipal: (id: string) => void
+}
+
+export function ImageUploader({
+  images,
+  principalId,
+  onAddFiles,
+  onRetry,
+  onRemove,
+  onSetPrincipal,
+}: ImageUploaderProps) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [dragging, setDragging] = useState(false)
+
+  function handleDrop(event: DragEvent<HTMLButtonElement>) {
+    event.preventDefault()
+    setDragging(false)
+    if (event.dataTransfer.files.length > 0) onAddFiles(event.dataTransfer.files)
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-[11px] font-semibold uppercase tracking-[0.09em] text-taupe">
+        Fotos (opcional)
+      </span>
+
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        onDragOver={(event) => {
+          event.preventDefault()
+          setDragging(true)
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={handleDrop}
+        className={cn(
+          'flex h-24 flex-col items-center justify-center gap-1 rounded-sm border-2 border-dashed text-sm text-taupe transition-colors',
+          dragging ? 'border-moss bg-moss/5' : 'border-line bg-paper',
+        )}
+      >
+        <svg viewBox="0 0 24 24" className="h-6 w-6 text-moss" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 16V4m0 0L8 8m4-4 4 4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+        </svg>
+        <span>
+          Arraste fotos ou <span className="font-semibold text-moss">toque pra selecionar</span>
+        </span>
+      </button>
+
+      <input
+        ref={inputRef}
+        id="fotos-input"
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={(event) => {
+          if (event.target.files?.length) onAddFiles(event.target.files)
+          event.target.value = ''
+        }}
+      />
+
+      {images.length > 0 ? (
+        <div className="grid grid-cols-4 gap-2">
+          {images.map((item) => (
+            <ImageThumb
+              key={item.id}
+              item={item}
+              isPrincipal={item.id === principalId}
+              onRetry={onRetry}
+              onRemove={onRemove}
+              onSetPrincipal={onSetPrincipal}
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  )
+}

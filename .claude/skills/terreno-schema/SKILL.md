@@ -8,6 +8,8 @@ governs:
   - web/src/lib/format.ts
   - web/src/services/terreno-service.ts
   - web/src/services/seed.ts
+  - web/src/lib/imagem.ts
+  - web/src/services/upload-service.ts
   - web/src/features/terreno-form/**
   - web/src/features/terreno-detail/TerrenoInfo.tsx
 ---
@@ -27,8 +29,10 @@ Campos canônicos (independe de onde os dados ficam guardados).
 | `largura` | number | não | metros |
 | `comprimento` | number | não | metros |
 | `link` | string | não | anúncio do corretor |
+| `imagens` | `TerrenoImagem[]` | não | `{ id, url }` — opcional |
+| `principalId` | string | não | id da imagem principal (pin, hover da tabela, detalhe) |
 
-> Removidos do v1: `nome`, `medidas`, `fotos`, `fotoPreview`.
+> `imagemPrincipal(terreno)` (`lib/imagem.ts`) = a marcada por `principalId`, senão a 1ª. Upload via `upload-service.ts` (mock: data URL em memória; backend depois retorna URL remota — só troca a impl). Estados de upload no hook `useImageUploads`.
 
 ## Auto-cálculo das medidas
 `total = largura × comprimento`. Preenchidos 2, o 3º se completa. Lógica pura e testada em `lib/area.ts` (`recalcArea`) — **não** reimplementar inline.

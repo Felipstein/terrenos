@@ -33,6 +33,7 @@ App **mobile-first** com layout responsivo. Estética **cartográfica**: papel c
 - **Dinheiro** (`CurrencyField`): valor grande em mono com `R$` fixo, formata milhares ao digitar (estilo Nubank). Usado no preço.
 - **Confirmação destrutiva** (`AlertDialog`): modal centralizado com ícone, título serif e botão `variant="accent"` (terracota) — sempre pra ações tipo excluir.
 - **Gaveta mobile** (`DraggableSheet`): aceita `accessory` (ex: FAB de adicionar) que fica grudado no topo e sobe junto com a gaveta.
+- **Imagens** (opcionais): `ImageUploader`/`ImageThumb` (dropzone + estados uploading/erro/done, marcar principal) via hook `useImageUploads`; `TerrenoGallery` no detalhe; principal aparece no pin (mini-foto + preço) e no hover da linha da tabela (`RowImagePreview`, desktop).
 - Validação: mensagens em PT-BR (fallback global em `lib/zod-pt.ts`).
 
 ## Visual

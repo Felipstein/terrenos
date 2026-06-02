@@ -18,6 +18,13 @@ const optionalPositive = z.preprocess(
     .optional(),
 )
 
+const terrenoImagemSchema = z.object({
+  id: z.string(),
+  url: z.string(),
+})
+
+export type TerrenoImagem = z.infer<typeof terrenoImagemSchema>
+
 export const terrenoSchema = z.object({
   rua: z.string().trim().min(1, 'Informe a rua'),
   preco: requiredPositive('Preço deve ser maior que zero'),
@@ -33,6 +40,8 @@ export const terrenoSchema = z.object({
       .refine((s) => /^https?:\/\/.+/.test(s), 'Link inválido')
       .optional(),
   ),
+  imagens: z.array(terrenoImagemSchema).optional(),
+  principalId: z.string().optional(),
 })
 
 export type TerrenoInput = z.infer<typeof terrenoSchema>

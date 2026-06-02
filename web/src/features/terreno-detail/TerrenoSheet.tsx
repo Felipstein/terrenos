@@ -6,6 +6,7 @@ import {
 } from '../../components/BottomSheet'
 import { Button } from '../../components/Button/Button'
 import { formatPrice } from '../../lib/format'
+import { TerrenoGallery } from './TerrenoGallery'
 import { TerrenoInfo } from './TerrenoInfo'
 import { RouteButton } from './RouteButton'
 
@@ -24,6 +25,10 @@ export function TerrenoSheet({ terreno, open, onClose, onEdit, onDelete }: Terre
       <BottomSheetPanel>
         {terreno ? (
           <div className="flex flex-col gap-5 pb-8 pt-3 md:pt-5">
+            {terreno.imagens && terreno.imagens.length > 0 ? (
+              <TerrenoGallery imagens={terreno.imagens} principalId={terreno.principalId} />
+            ) : null}
+
             <div className="px-5">
               <p className="font-mono text-3xl font-semibold tracking-tight text-ink">
                 {formatPrice(terreno.preco)}

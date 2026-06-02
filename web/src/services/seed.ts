@@ -1,6 +1,7 @@
 import type { Terreno } from '../types/terreno'
 
-// Dados de exemplo (região de Campinas/SP). Usados na primeira carga do localStorage.
+// Dados de exemplo (região de Campinas/SP). Mock em memória — reseta no reload.
+// Imagens via picsum (placeholder). Um terreno fica sem foto de propósito.
 export const seedTerrenos: Terreno[] = [
   {
     id: 'seed-1',
@@ -12,6 +13,12 @@ export const seedTerrenos: Terreno[] = [
     largura: 10,
     comprimento: 25,
     link: 'https://example.com/anuncio/1',
+    imagens: [
+      { id: 'seed-1-a', url: 'https://picsum.photos/seed/terreno1a/800/600' },
+      { id: 'seed-1-b', url: 'https://picsum.photos/seed/terreno1b/800/600' },
+      { id: 'seed-1-c', url: 'https://picsum.photos/seed/terreno1c/800/600' },
+    ],
+    principalId: 'seed-1-b',
   },
   {
     id: 'seed-2',
@@ -22,6 +29,11 @@ export const seedTerrenos: Terreno[] = [
     areaTotal: 420,
     largura: 14,
     comprimento: 30,
+    imagens: [
+      { id: 'seed-2-a', url: 'https://picsum.photos/seed/terreno2a/800/600' },
+      { id: 'seed-2-b', url: 'https://picsum.photos/seed/terreno2b/800/600' },
+    ],
+    principalId: 'seed-2-a',
   },
   {
     id: 'seed-3',
@@ -33,6 +45,12 @@ export const seedTerrenos: Terreno[] = [
     largura: 20,
     comprimento: 50,
     link: 'https://example.com/anuncio/3',
+    imagens: [
+      { id: 'seed-3-a', url: 'https://picsum.photos/seed/terreno3a/800/600' },
+      { id: 'seed-3-b', url: 'https://picsum.photos/seed/terreno3b/800/600' },
+      { id: 'seed-3-c', url: 'https://picsum.photos/seed/terreno3c/800/600' },
+    ],
+    principalId: 'seed-3-a',
   },
   {
     id: 'seed-4',
@@ -43,6 +61,7 @@ export const seedTerrenos: Terreno[] = [
     areaTotal: 600,
     largura: 15,
     comprimento: 40,
+    // sem imagens (testa o caso opcional)
   },
   {
     id: 'seed-5',
@@ -54,5 +73,7 @@ export const seedTerrenos: Terreno[] = [
     largura: 9,
     comprimento: 20,
     link: 'https://example.com/anuncio/5',
+    imagens: [{ id: 'seed-5-a', url: 'https://picsum.photos/seed/terreno5a/800/600' }],
+    principalId: 'seed-5-a',
   },
 ]

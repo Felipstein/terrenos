@@ -10,6 +10,8 @@ import { Button } from '../../components/Button/Button'
 import { LocationPicker } from './LocationPicker'
 import { PasteMapsLink } from './PasteMapsLink'
 import { useReverseGeocode } from '../map/useReverseGeocode'
+import { useImageUploads } from './useImageUploads'
+import { ImageUploader } from '../../components/ImageUploader/ImageUploader'
 
 type TerrenoFormValues = {
   rua: string
@@ -63,6 +65,7 @@ export function TerrenoForm({ initial, centerLat, centerLng, onSubmit }: Terreno
 
   const lat = watch('lat')
   const lng = watch('lng')
+  const uploads = useImageUploads(initial?.imagens, initial?.principalId)
 
   async function applyPoint(nextLat: number, nextLng: number) {
     setValue('lat', nextLat, { shouldValidate: true })
@@ -95,7 +98,8 @@ export function TerrenoForm({ initial, centerLat, centerLng, onSubmit }: Terreno
   }
 
   function submit(values: TerrenoFormValues) {
-    onSubmit(values as TerrenoInput)
+    const { imagens, principalId } = uploads.getResult()
+    onSubmit({ ...values, imagens, principalId } as TerrenoInput)
   }
 
   return (
@@ -156,6 +160,15 @@ export function TerrenoForm({ initial, centerLat, centerLng, onSubmit }: Terreno
         placeholder="https://..."
         error={errors.link?.message}
         {...register('link')}
+      />
+
+      <ImageUploader
+        images={uploads.images}
+        principalId={uploads.principalId}
+        onAddFiles={uploads.addFiles}
+        onRetry={uploads.retry}
+        onRemove={uploads.remove}
+        onSetPrincipal={uploads.setPrincipal}
       />
 
       <Button type="submit" disabled={isSubmitting} className="mt-1">

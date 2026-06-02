@@ -1,5 +1,5 @@
-import type { TerrenoInput } from '../lib/terreno-validation'
+import type { TerrenoInput, TerrenoImagem } from '../lib/terreno-validation'
 
-export type { TerrenoInput }
+export type { TerrenoInput, TerrenoImagem }
 
 export type Terreno = TerrenoInput & { id: string }
