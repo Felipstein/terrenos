@@ -3,65 +3,287 @@ info:
   title: Terrenos API
   version: 0.1.0
   description: >
-    Contrato da API do app Terrenos. Fonte da verdade entre frontend e backend.
-    Ainda estamos validando o front (dados em mock); as rotas vão sendo
-    adicionadas conforme a necessidade fica clara.
+    Contrato da API do app Terrenos — fonte da verdade entre frontend e backend.
+    As rotas foram inferidas dos services do front (terreno-service, auth-service,
+    upload-service).
+
+    Princípios: **performance, baixo custo e simplicidade**. A **busca e a
+    ordenação são feitas no FRONTEND** (a lista é pequena) — por isso `GET /terrenos`
+    retorna a lista inteira, **sem search e sem paginação** no servidor.
+
     Regra: rota nova ou retorno alterado => atualizar este arquivo na mesma mudança.
 servers:
   - url: http://localhost:8080
     description: backend local (linguagem a definir)
+
+# Protegido por padrão; rotas públicas sobrescrevem com `security: []`.
+security:
+  - bearerAuth: []
+
 paths:
   /health:
     get:
       operationId: getHealth
       summary: Health check do serviço
+      security: []
       responses:
         "200":
           description: Serviço no ar
           content:
             application/json:
+              schema: { $ref: "#/components/schemas/Health" }
+
+  /auth/login:
+    post:
+      operationId: login
+      summary: Autentica e devolve a sessão (access + refresh token)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginInput" }
+      responses:
+        "200":
+          description: Sessão criada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthSession" }
+        "401":
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /auth/refresh:
+    post:
+      operationId: refresh
+      summary: Renova o access token a partir do refresh token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RefreshInput" }
+      responses:
+        "200":
+          description: Novo access token
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthTokens" }
+        "401":
+          description: Refresh token inválido/expirado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /terrenos:
+    get:
+      operationId: listTerrenos
+      summary: Lista TODOS os terrenos (busca/ordenação ficam no front)
+      responses:
+        "200":
+          description: Lista de terrenos
+          content:
+            application/json:
               schema:
-                $ref: "#/components/schemas/Health"
+                type: array
+                items: { $ref: "#/components/schemas/Terreno" }
+    post:
+      operationId: createTerreno
+      summary: Cria um terreno
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TerrenoInput" }
+      responses:
+        "201":
+          description: Terreno criado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Terreno" }
+        "422":
+          description: Dados inválidos
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /terrenos/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    put:
+      operationId: updateTerreno
+      summary: Atualiza um terreno
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TerrenoInput" }
+      responses:
+        "200":
+          description: Terreno atualizado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Terreno" }
+        "404":
+          description: Não encontrado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+    delete:
+      operationId: deleteTerreno
+      summary: Remove um terreno
+      responses:
+        "204":
+          description: Removido
+        "404":
+          description: Não encontrado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /uploads:
+    post:
+      operationId: uploadImagem
+      summary: Faz upload de uma imagem e devolve a URL salva (storage/CDN)
+      description: >
+        Recebe um arquivo (multipart) e retorna `{ id, url }`. O `id`/`url`
+        entram em `Terreno.imagens`; o `principalId` aponta a imagem principal.
+        Hoje o front usa um mock (data URL em memória) atrás do mesmo contrato.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Imagem salva
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TerrenoImagem" }
+        "400":
+          description: Arquivo inválido (tipo não suportado ou grande demais)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
 
   /maps/resolve-link:
     post:
       operationId: resolveMapsLink
       summary: Resolve um link do Google Maps (inclusive curto) em coordenadas
       description: >
-        PLANEJADA (backend a fazer). O front resolve links COMPLETOS sozinho
-        (parse de lat/lng no navegador). Mas link CURTO (maps.app.goo.gl) é um
-        redirect e o navegador não consegue segui-lo por falta de CORS — então
-        o front manda o link pra cá e o backend segue o redirect server-side e
-        extrai lat/lng (e o endereço, se conseguir).
+        O front resolve links COMPLETOS sozinho (parse no navegador). Link CURTO
+        (maps.app.goo.gl) é um redirect que o navegador não segue por falta de
+        CORS — então o backend segue o redirect server-side e extrai lat/lng.
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: "#/components/schemas/ResolveMapsLinkInput"
+            schema: { $ref: "#/components/schemas/ResolveMapsLinkInput" }
       responses:
         "200":
           description: Coordenadas resolvidas
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/ResolvedLocation"
+              schema: { $ref: "#/components/schemas/ResolvedLocation" }
         "422":
           description: Não foi possível extrair coordenadas do link
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+              schema: { $ref: "#/components/schemas/Error" }
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
     Health:
       type: object
       required: [status]
       properties:
-        status:
+        status: { type: string, enum: [ok], example: ok }
+
+    TerrenoImagem:
+      type: object
+      required: [id, url]
+      properties:
+        id: { type: string }
+        url: { type: string, format: uri }
+
+    TerrenoInput:
+      type: object
+      required: [rua, preco, lat, lng, areaTotal]
+      properties:
+        rua: { type: string, example: "Rua das Palmeiras, 120" }
+        preco: { type: number, description: BRL, example: 185000 }
+        lat: { type: number, example: -22.9056 }
+        lng: { type: number, example: -47.0608 }
+        areaTotal: { type: number, description: m², example: 250 }
+        largura: { type: number, description: metros, example: 10 }
+        comprimento: { type: number, description: metros, example: 25 }
+        link: { type: string, format: uri }
+        imagens:
+          type: array
+          items: { $ref: "#/components/schemas/TerrenoImagem" }
+        principalId:
           type: string
-          enum: [ok]
-          example: ok
+          description: id da imagem principal (aparece no pin/tabela/detalhe)
+
+    Terreno:
+      allOf:
+        - { $ref: "#/components/schemas/TerrenoInput" }
+        - type: object
+          required: [id]
+          properties:
+            id: { type: string }
+
+    LoginInput:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string }
+        password: { type: string }
+
+    AuthUser:
+      type: object
+      required: [username]
+      properties:
+        username: { type: string }
+
+    AuthSession:
+      type: object
+      required: [accessToken, refreshToken, expiresIn, user]
+      properties:
+        accessToken: { type: string }
+        refreshToken: { type: string }
+        expiresIn: { type: integer, description: segundos até o access token expirar, example: 3600 }
+        user: { $ref: "#/components/schemas/AuthUser" }
+
+    RefreshInput:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken: { type: string }
+
+    AuthTokens:
+      type: object
+      required: [accessToken, expiresIn]
+      properties:
+        accessToken: { type: string }
+        expiresIn: { type: integer, example: 3600 }
 
     ResolveMapsLinkInput:
       type: object
@@ -69,28 +291,18 @@ components:
       properties:
         url:
           type: string
-          description: Link do Google Maps (curto ou completo)
           example: https://maps.app.goo.gl/gY6f4xVaTYjQVhzP7
 
     ResolvedLocation:
       type: object
       required: [lat, lng]
       properties:
-        lat:
-          type: number
-          example: -22.9056
-        lng:
-          type: number
-          example: -47.0608
-        address:
-          type: string
-          description: Endereço, se o backend conseguir resolver
-          example: Rua das Palmeiras, 120 - Campinas, SP
+        lat: { type: number, example: -22.9056 }
+        lng: { type: number, example: -47.0608 }
+        address: { type: string, example: "Rua das Palmeiras, 120 - Campinas, SP" }
 
     Error:
       type: object
       required: [message]
       properties:
-        message:
-          type: string
-          example: Não foi possível extrair coordenadas do link
+        message: { type: string, example: "Algo deu errado" }
