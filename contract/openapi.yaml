@@ -1,0 +1,33 @@
+openapi: 3.1.0
+info:
+  title: Terrenos API
+  version: 0.1.0
+  description: >
+    Contrato da API do app Terrenos. Fonte da verdade entre frontend e backend.
+    Ainda não sabemos a maioria das rotas — começamos só com health.
+    Regra: rota nova ou retorno alterado => atualizar este arquivo na mesma mudança.
+servers:
+  - url: http://localhost:8080
+    description: backend local (linguagem a definir)
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Health check do serviço
+      responses:
+        "200":
+          description: Serviço no ar
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+components:
+  schemas:
+    Health:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+          example: ok
