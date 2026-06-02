@@ -1,0 +1,34 @@
+import type { Terreno } from '../../types/terreno'
+import { formatPrice } from '../../lib/format'
+import { cn } from '../../lib/cn'
+
+type TerrenoTableRowProps = {
+  terreno: Terreno
+  selected: boolean
+  onSelect: (id: string) => void
+}
+
+export function TerrenoTableRow({ terreno, selected, onSelect }: TerrenoTableRowProps) {
+  const dim =
+    terreno.largura && terreno.comprimento ? `${terreno.largura}×${terreno.comprimento}` : '—'
+  return (
+    <tr
+      onClick={() => onSelect(terreno.id)}
+      className={cn(
+        'cursor-pointer border-b border-line/70 transition-colors',
+        selected ? 'bg-clay/10' : 'hover:bg-ink/[0.03]',
+      )}
+    >
+      <td className="px-4 py-3.5">
+        <span className="block truncate text-sm text-ink">{terreno.rua}</span>
+      </td>
+      <td className="whitespace-nowrap px-2 py-3.5 text-right font-mono text-xs tabular-nums text-taupe">
+        {terreno.areaTotal} m²
+      </td>
+      <td className="px-2 py-3.5 text-right font-mono text-xs tabular-nums text-taupe">{dim}</td>
+      <td className="whitespace-nowrap px-4 py-3.5 text-right font-mono text-[13px] font-semibold tabular-nums text-ink">
+        {formatPrice(terreno.preco)}
+      </td>
+    </tr>
+  )
+}
