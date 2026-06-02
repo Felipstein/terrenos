@@ -4,7 +4,8 @@ info:
   version: 0.1.0
   description: >
     Contrato da API do app Terrenos. Fonte da verdade entre frontend e backend.
-    Ainda não sabemos a maioria das rotas — começamos só com health.
+    Ainda estamos validando o front (dados em mock); as rotas vão sendo
+    adicionadas conforme a necessidade fica clara.
     Regra: rota nova ou retorno alterado => atualizar este arquivo na mesma mudança.
 servers:
   - url: http://localhost:8080
@@ -21,6 +22,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Health"
+
+  /maps/resolve-link:
+    post:
+      operationId: resolveMapsLink
+      summary: Resolve um link do Google Maps (inclusive curto) em coordenadas
+      description: >
+        PLANEJADA (backend a fazer). O front resolve links COMPLETOS sozinho
+        (parse de lat/lng no navegador). Mas link CURTO (maps.app.goo.gl) é um
+        redirect e o navegador não consegue segui-lo por falta de CORS — então
+        o front manda o link pra cá e o backend segue o redirect server-side e
+        extrai lat/lng (e o endereço, se conseguir).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResolveMapsLinkInput"
+      responses:
+        "200":
+          description: Coordenadas resolvidas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResolvedLocation"
+        "422":
+          description: Não foi possível extrair coordenadas do link
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     Health:
@@ -31,3 +62,35 @@ components:
           type: string
           enum: [ok]
           example: ok
+
+    ResolveMapsLinkInput:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+          description: Link do Google Maps (curto ou completo)
+          example: https://maps.app.goo.gl/gY6f4xVaTYjQVhzP7
+
+    ResolvedLocation:
+      type: object
+      required: [lat, lng]
+      properties:
+        lat:
+          type: number
+          example: -22.9056
+        lng:
+          type: number
+          example: -47.0608
+        address:
+          type: string
+          description: Endereço, se o backend conseguir resolver
+          example: Rua das Palmeiras, 120 - Campinas, SP
+
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          example: Não foi possível extrair coordenadas do link
