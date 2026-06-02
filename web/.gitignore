@@ -1,0 +1,25 @@
+# dependencies
+node_modules
+
+# build
+dist
+dist-ssr
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# editor / os
+.DS_Store
+*.local
+
+# env (segredos) — mantém só o exemplo versionado
+.env
+.env.*
+!.env.example
+
+# playwright smoke artifacts
+smoke-*.png
+test-results
+playwright-report
