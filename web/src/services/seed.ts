@@ -1,0 +1,58 @@
+import type { Terreno } from '../types/terreno'
+
+// Dados de exemplo (região de Campinas/SP). Usados na primeira carga do localStorage.
+export const seedTerrenos: Terreno[] = [
+  {
+    id: 'seed-1',
+    rua: 'Rua das Palmeiras, 120',
+    preco: 185000,
+    lat: -22.9056,
+    lng: -47.0608,
+    areaTotal: 250,
+    largura: 10,
+    comprimento: 25,
+    link: 'https://example.com/anuncio/1',
+  },
+  {
+    id: 'seed-2',
+    rua: 'Rua Sete de Setembro, 45',
+    preco: 320000,
+    lat: -22.9132,
+    lng: -47.0721,
+    areaTotal: 420,
+    largura: 14,
+    comprimento: 30,
+  },
+  {
+    id: 'seed-3',
+    rua: 'Estrada do Sol, km 3',
+    preco: 540000,
+    lat: -22.8987,
+    lng: -47.0489,
+    areaTotal: 1000,
+    largura: 20,
+    comprimento: 50,
+    link: 'https://example.com/anuncio/3',
+  },
+  {
+    id: 'seed-4',
+    rua: 'Avenida Aurora, 880',
+    preco: 1250000,
+    lat: -22.9201,
+    lng: -47.0555,
+    areaTotal: 600,
+    largura: 15,
+    comprimento: 40,
+  },
+  {
+    id: 'seed-5',
+    rua: 'Rua dos Ipês, 12',
+    preco: 99000,
+    lat: -22.9045,
+    lng: -47.0712,
+    areaTotal: 180,
+    largura: 9,
+    comprimento: 20,
+    link: 'https://example.com/anuncio/5',
+  },
+]
