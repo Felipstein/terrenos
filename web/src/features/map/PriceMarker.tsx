@@ -1,6 +1,6 @@
 import { AdvancedMarker } from '@vis.gl/react-google-maps'
 import type { Terreno } from '../../types/terreno'
-import { formatPriceShort } from '../../lib/format'
+import { formatArea, formatPriceShort } from '../../lib/format'
 import { imagemPrincipal } from '../../lib/imagem'
 import { cn } from '../../lib/cn'
 
@@ -12,6 +12,10 @@ type PriceMarkerProps = {
 
 export function PriceMarker({ terreno, selected, onSelect }: PriceMarkerProps) {
   const foto = imagemPrincipal(terreno)
+  const dimensoes =
+    terreno.largura && terreno.comprimento
+      ? `${formatArea(terreno.areaTotal)} · ${terreno.largura}×${terreno.comprimento}`
+      : formatArea(terreno.areaTotal)
   return (
     <AdvancedMarker
       position={{ lat: terreno.lat, lng: terreno.lng }}
@@ -22,23 +26,28 @@ export function PriceMarker({ terreno, selected, onSelect }: PriceMarkerProps) {
         <div
           className={cn(
             'min-w-[80px] overflow-hidden rounded-sm border shadow-md',
-            selected ? 'border-clay' : 'border-moss-700',
+            selected ? 'border-moss-700' : 'border-clay-600',
           )}
         >
           {foto ? <img src={foto.url} alt="" className="h-12 w-full object-cover" /> : null}
           <div
             className={cn(
-              'whitespace-nowrap px-2 py-0.5 text-center font-mono text-[11px] font-semibold text-paper',
-              selected ? 'bg-clay' : 'bg-moss',
+              'px-2.5 py-1 text-center font-mono text-paper',
+              selected ? 'bg-moss' : 'bg-clay',
             )}
           >
-            {formatPriceShort(terreno.preco)}
+            <div className="whitespace-nowrap text-[13px] font-bold leading-tight">
+              {formatPriceShort(terreno.preco)}
+            </div>
+            <div className="mt-0.5 whitespace-nowrap text-[11px] font-medium leading-tight text-paper/90">
+              {dimensoes}
+            </div>
           </div>
         </div>
         <div
           className={cn(
             '-mt-[3px] h-2 w-2 rotate-45 border-b border-r',
-            selected ? 'border-clay bg-clay' : 'border-moss-700 bg-moss',
+            selected ? 'border-moss-700 bg-moss' : 'border-clay-600 bg-clay',
           )}
         />
       </div>
