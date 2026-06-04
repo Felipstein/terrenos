@@ -17,10 +17,13 @@ export function useTerrenos(): UseTerrenos {
   useEffect(() => {
     getTerrenoService()
       .list()
-      .then((list) => {
-        setTerrenos(list)
-        setLoading(false)
+      .then((list) => setTerrenos(list))
+      .catch((error: unknown) => {
+        // Mantém a lista vazia; loga pra diagnóstico. Sem isso, um erro deixava
+        // o loading travado em true pra sempre.
+        console.error('Falha ao carregar terrenos:', error)
       })
+      .finally(() => setLoading(false))
   }, [])
 
   async function refresh(): Promise<void> {
