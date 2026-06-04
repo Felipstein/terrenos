@@ -40,12 +40,14 @@ export function AppShell({ onLogout }: AppShellProps) {
     setFormOpen(true)
   }
 
-  function handleSubmit(input: TerrenoInput, id: string | null) {
+  async function handleSubmit(input: TerrenoInput, id: string | null) {
     if (id) {
-      updateTerreno({ ...input, id })
+      await updateTerreno({ ...input, id })
     } else {
-      addTerreno(input).then((terreno) => setSelectedId(terreno.id))
+      const created = await addTerreno(input)
+      setSelectedId(created.id) // abre o detalhe do recém-criado
     }
+    setFormOpen(false) // só fecha o form quando terminou de salvar
   }
 
   function confirmDelete() {

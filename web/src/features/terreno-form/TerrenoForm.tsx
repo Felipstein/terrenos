@@ -28,7 +28,7 @@ type TerrenoFormProps = {
   initial: Terreno | null
   centerLat: number
   centerLng: number
-  onSubmit: (input: TerrenoInput) => void
+  onSubmit: (input: TerrenoInput) => Promise<void> | void
 }
 
 function numU(value: number | undefined): number | undefined {
@@ -97,9 +97,9 @@ export function TerrenoForm({ initial, centerLat, centerLng, onSubmit }: Terreno
     }
   }
 
-  function submit(values: TerrenoFormValues) {
+  async function submit(values: TerrenoFormValues) {
     const { imagens, principalId } = uploads.getResult()
-    onSubmit({ ...values, imagens, principalId } as TerrenoInput)
+    await onSubmit({ ...values, imagens, principalId } as TerrenoInput)
   }
 
   return (
@@ -171,8 +171,8 @@ export function TerrenoForm({ initial, centerLat, centerLng, onSubmit }: Terreno
         onSetPrincipal={uploads.setPrincipal}
       />
 
-      <Button type="submit" disabled={isSubmitting} className="mt-1">
-        {initial ? 'Salvar alterações' : 'Salvar terreno'}
+      <Button type="submit" disabled={isSubmitting || uploads.uploading} className="mt-1">
+        {isSubmitting ? 'Salvando…' : initial ? 'Salvar alterações' : 'Salvar terreno'}
       </Button>
     </form>
   )

@@ -13,7 +13,7 @@ type TerrenoFormSheetProps = {
   centerLat: number
   centerLng: number
   onClose: () => void
-  onSubmit: (input: TerrenoInput, id: string | null) => void
+  onSubmit: (input: TerrenoInput, id: string | null) => Promise<void>
 }
 
 export function TerrenoFormSheet({
@@ -45,10 +45,7 @@ export function TerrenoFormSheet({
                 initial={terreno}
                 centerLat={centerLat}
                 centerLng={centerLng}
-                onSubmit={(input) => {
-                  onSubmit(input, terreno?.id ?? null)
-                  onClose()
-                }}
+                onSubmit={(input) => onSubmit(input, terreno?.id ?? null)}
               />
             </div>
           </div>
