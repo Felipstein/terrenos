@@ -1,7 +1,7 @@
 import type { TerrenoImagem } from '../types/terreno'
 import { apiUrl } from '../lib/api/config'
 import { ApiError } from '../lib/api/errors'
-import { readSession } from './session-store'
+import { readTokens } from './session-store'
 
 // Upload de imagem via POST /uploads (multipart). Usa XMLHttpRequest porque o
 // fetch não reporta progresso de upload — e o form mostra a barra de progresso.
@@ -20,7 +20,7 @@ export function createHttpUploadService(): UploadService {
         const xhr = new XMLHttpRequest()
         xhr.open('POST', apiUrl('/uploads'))
 
-        const token = readSession()?.accessToken
+        const token = readTokens()?.accessToken
         if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`)
 
         xhr.upload.onprogress = (event) => {

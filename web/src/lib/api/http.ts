@@ -1,6 +1,6 @@
 import { apiUrl } from './config'
 import { ApiError } from './errors'
-import { clearSession, readSession } from '../../services/session-store'
+import { clearTokens, readTokens } from '../../services/session-store'
 import { refreshSession } from '../../services/refresh'
 
 type RequestOptions = {
@@ -28,12 +28,12 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     })
   }
 
-  let response = await send(useAuth ? (readSession()?.accessToken ?? null) : null)
+  let response = await send(useAuth ? (readTokens()?.accessToken ?? null) : null)
 
   if (response.status === 401 && useAuth) {
     const token = await refreshSession()
     if (!token) {
-      clearSession()
+      clearTokens()
       throw new ApiError(401, 'Sessão expirada')
     }
     response = await send(token)

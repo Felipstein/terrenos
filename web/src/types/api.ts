@@ -55,6 +55,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Identidade da sessão atual (a partir do access token) */
+        get: operations["getMe"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/terrenos": {
         parameters: {
             query?: never;
@@ -186,6 +203,7 @@ export interface components {
             id: string;
         };
         LoginInput: {
+            /** @description identificador de login do usuário; carrega o e-mail. */
             username: string;
             password: string;
         };
@@ -207,6 +225,8 @@ export interface components {
         };
         AuthTokens: {
             accessToken: string;
+            /** @description novo refresh token rotacionado; o anterior é invalidado imediatamente (rotation com grace period 0). */
+            refreshToken: string;
             /** @example 3600 */
             expiresIn: number;
         };
@@ -301,7 +321,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Novo access token */
+            /** @description Novos access token e refresh token (rotacionado) */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -311,6 +331,35 @@ export interface operations {
                 };
             };
             /** @description Refresh token inválido/expirado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getMe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Usuário autenticado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthUser"];
+                };
+            };
+            /** @description Não autenticado */
             401: {
                 headers: {
                     [name: string]: unknown;
