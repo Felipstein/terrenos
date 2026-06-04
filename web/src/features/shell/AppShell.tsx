@@ -15,7 +15,7 @@ type AppShellProps = {
 }
 
 export function AppShell({ onLogout }: AppShellProps) {
-  const { terrenos, addTerreno, updateTerreno, removeTerreno } = useTerrenos()
+  const { terrenos, loading, addTerreno, updateTerreno, removeTerreno } = useTerrenos()
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<SortOrder>('price-asc')
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -70,7 +70,13 @@ export function AppShell({ onLogout }: AppShellProps) {
       />
 
       <div className="absolute inset-0 md:static md:flex-1">
-        <MapView terrenos={searched} selectedId={selectedId} onSelect={setSelectedId} focus={focus} />
+        <MapView
+          terrenos={searched}
+          loading={loading}
+          selectedId={selectedId}
+          onSelect={setSelectedId}
+          focus={focus}
+        />
 
         <button
           type="button"
