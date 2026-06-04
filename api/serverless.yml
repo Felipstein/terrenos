@@ -62,7 +62,7 @@ custom:
     ImagesBucket: ${self:service}-${self:provider.stage}-images-${aws:accountId}
   corsOrigins:
     prod:
-      - '*' # trocar quando subir em prod o web
+      - 'https://terrenos-omega.vercel.app'
     dev:
       - '*'
   deletionProtection:
