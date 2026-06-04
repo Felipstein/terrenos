@@ -38,9 +38,12 @@ export function ImageUploader({
   const [dragging, setDragging] = useState(false)
 
   // Colar imagem (Ctrl+V) em qualquer lugar do form enquanto ele está aberto.
-  // Ref pra não re-assinar o listener a cada render (onAddFiles não é memoizado).
+  // Ref pra não re-assinar o listener a cada render (onAddFiles não é memoizado);
+  // atualizada num effect (mexer em ref durante o render é proibido).
   const onAddFilesRef = useRef(onAddFiles)
-  onAddFilesRef.current = onAddFiles
+  useEffect(() => {
+    onAddFilesRef.current = onAddFiles
+  }, [onAddFiles])
   useEffect(() => {
     function handlePaste(event: ClipboardEvent) {
       const files = imageFilesFromClipboard(event.clipboardData)
