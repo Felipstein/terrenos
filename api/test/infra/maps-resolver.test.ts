@@ -52,4 +52,13 @@ describe('HttpMapsResolver (link curto, segue redirect)', () => {
       ValidationError,
     )
   })
+
+  it('propaga o erro do fetch (vira 500 no handler) — retry fica no front', async () => {
+    const failing = vi.fn(async () => {
+      throw new TypeError('fetch failed')
+    })
+    vi.stubGlobal('fetch', failing)
+    await expect(resolver.resolve('https://maps.app.goo.gl/zzz')).rejects.toThrow('fetch failed')
+    expect(failing).toHaveBeenCalledTimes(1)
+  })
 })

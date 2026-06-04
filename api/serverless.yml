@@ -164,6 +164,7 @@ functions:
 
   mapsResolveLink:
     handler: src/functions/maps/resolveLink.handler
+    timeout: 10 # segue redirect do Google (fetch com timeout de 4s)
     events:
       - httpApi:
           method: POST
