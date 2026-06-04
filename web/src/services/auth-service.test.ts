@@ -1,51 +1,75 @@
-import { beforeEach, describe, expect, it } from 'vitest'
-import { createLocalAuthService, type KeyValueStore } from './auth-service'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createHttpAuthService } from './auth-service'
+import { readSession, writeSession, type Session } from './session-store'
+import { memoryStorage } from '../test/memory-storage'
 
-function memoryStore(): KeyValueStore {
-  const map = new Map<string, string>()
-  return {
-    getItem: (key) => map.get(key) ?? null,
-    setItem: (key, value) => {
-      map.set(key, value)
-    },
-    removeItem: (key) => {
-      map.delete(key)
-    },
-  }
+function jsonResponse(data: unknown, status = 200): Response {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  })
 }
 
-const creds = { username: 'felipe', password: 'segredo' }
-
-describe('createLocalAuthService', () => {
-  let store: KeyValueStore
+describe('createHttpAuthService', () => {
+  let fetchMock: ReturnType<typeof vi.fn>
 
   beforeEach(() => {
-    store = memoryStore()
+    fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('localStorage', memoryStorage())
   })
 
-  it('loga com credencial correta e cria sessão', async () => {
-    const auth = createLocalAuthService(creds, store)
-    const session = await auth.login('felipe', 'segredo')
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('login deriva expiresAt de expiresIn e persiste a sessão', async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ accessToken: 'a', refreshToken: 'r', expiresIn: 3600, user: { username: 'felipe' } }),
+    )
+    const before = Date.now()
+    const session = await createHttpAuthService().login('felipe', 'segredo')
+
     expect(session.user.username).toBe('felipe')
-    expect(session.accessToken).toBeTruthy()
-    expect(session.refreshToken).toBeTruthy()
+    expect(session.accessToken).toBe('a')
+    expect(session.expiresAt).toBeGreaterThanOrEqual(before + 3600 * 1000)
+    expect(readSession()?.accessToken).toBe('a')
   })
 
-  it('rejeita credencial errada', async () => {
-    const auth = createLocalAuthService(creds, store)
-    await expect(auth.login('felipe', 'errado')).rejects.toThrow()
+  it('login propaga erro 401 com a mensagem do corpo', async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ message: 'Credenciais inválidas' }, 401))
+    await expect(createHttpAuthService().login('felipe', 'errada')).rejects.toThrow(
+      'Credenciais inválidas',
+    )
   })
 
-  it('getSession retorna a sessão após login', async () => {
-    const auth = createLocalAuthService(creds, store)
-    await auth.login('felipe', 'segredo')
-    expect(await auth.getSession()).not.toBeNull()
+  it('getSession retorna null quando não há sessão', async () => {
+    expect(await createHttpAuthService().getSession()).toBeNull()
+  })
+
+  it('getSession renova o access token quando expirou', async () => {
+    const expired: Session = {
+      user: { username: 'felipe' },
+      accessToken: 'velho',
+      refreshToken: 'r',
+      expiresAt: Date.now() - 1000,
+    }
+    writeSession(expired)
+    fetchMock.mockResolvedValue(jsonResponse({ accessToken: 'novo', expiresIn: 3600 }))
+
+    const session = await createHttpAuthService().getSession()
+    expect(session?.accessToken).toBe('novo')
+    expect(fetchMock).toHaveBeenCalledOnce()
   })
 
   it('logout encerra a sessão', async () => {
-    const auth = createLocalAuthService(creds, store)
-    await auth.login('felipe', 'segredo')
-    await auth.logout()
-    expect(await auth.getSession()).toBeNull()
+    writeSession({
+      user: { username: 'felipe' },
+      accessToken: 'a',
+      refreshToken: 'r',
+      expiresAt: Date.now() + 10000,
+    })
+    await createHttpAuthService().logout()
+    expect(readSession()).toBeNull()
   })
 })

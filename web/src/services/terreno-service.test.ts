@@ -1,44 +1,76 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Terreno } from '../types/terreno'
-import { createMemoryTerrenoService } from './terreno-service'
-import { seedTerrenos } from './seed'
+import { createHttpTerrenoService } from './terreno-service'
+import { memoryStorage } from '../test/memory-storage'
 
-function terreno(id: string): Terreno {
-  return { id, rua: 'Rua X, 1', preco: 100000, lat: -22.9, lng: -47.0, areaTotal: 200 }
+function jsonResponse(data: unknown, status = 200): Response {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  })
 }
 
-describe('createMemoryTerrenoService', () => {
-  it('começa com o mock (seed)', async () => {
-    const service = createMemoryTerrenoService()
-    expect(await service.list()).toHaveLength(seedTerrenos.length)
+const input = {
+  rua: 'Rua X, 1',
+  preco: 100000,
+  lat: -22.9,
+  lng: -47.0,
+  areaTotal: 200,
+}
+
+const sample: Terreno = { id: 'a1', ...input }
+
+describe('createHttpTerrenoService', () => {
+  let fetchMock: ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('localStorage', memoryStorage()) // sem sessão → sem header de auth
   })
 
-  it('adiciona um novo terreno', async () => {
-    const service = createMemoryTerrenoService([])
-    await service.save(terreno('novo-1'))
-    expect((await service.list()).some((t) => t.id === 'novo-1')).toBe(true)
+  afterEach(() => {
+    vi.unstubAllGlobals()
   })
 
-  it('atualiza um terreno existente em vez de duplicar', async () => {
-    const service = createMemoryTerrenoService([])
-    await service.save(terreno('x'))
-    await service.save({ ...terreno('x'), preco: 999000 })
-    const all = (await service.list()).filter((t) => t.id === 'x')
-    expect(all).toHaveLength(1)
-    expect(all[0].preco).toBe(999000)
+  it('list faz GET em /terrenos', async () => {
+    fetchMock.mockResolvedValue(jsonResponse([sample]))
+    const list = await createHttpTerrenoService().list()
+    expect(list).toEqual([sample])
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(String(url).endsWith('/terrenos')).toBe(true)
+    expect(init.method).toBe('GET')
   })
 
-  it('remove um terreno', async () => {
-    const service = createMemoryTerrenoService([])
-    await service.save(terreno('rm'))
-    await service.remove('rm')
-    expect((await service.list()).some((t) => t.id === 'rm')).toBe(false)
+  it('create faz POST com o input no corpo', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(sample, 201))
+    const created = await createHttpTerrenoService().create(input)
+    expect(created).toEqual(sample)
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(String(url).endsWith('/terrenos')).toBe(true)
+    expect(init.method).toBe('POST')
+    expect(JSON.parse(init.body)).toEqual(input)
   })
 
-  it('não compartilha estado entre instâncias', async () => {
-    const a = createMemoryTerrenoService([])
-    const b = createMemoryTerrenoService([])
-    await a.save(terreno('só-no-a'))
-    expect(await b.list()).toHaveLength(0)
+  it('update faz PUT em /terrenos/{id} sem o id no corpo', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(sample))
+    await createHttpTerrenoService().update(sample)
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(String(url).endsWith('/terrenos/a1')).toBe(true)
+    expect(init.method).toBe('PUT')
+    expect(JSON.parse(init.body).id).toBeUndefined()
+  })
+
+  it('remove faz DELETE e aceita 204 sem corpo', async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
+    await expect(createHttpTerrenoService().remove('a1')).resolves.toBeUndefined()
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(String(url).endsWith('/terrenos/a1')).toBe(true)
+    expect(init.method).toBe('DELETE')
+  })
+
+  it('propaga erro com a mensagem do corpo', async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ message: 'Não encontrado' }, 404))
+    await expect(createHttpTerrenoService().remove('x')).rejects.toThrow('Não encontrado')
   })
 })

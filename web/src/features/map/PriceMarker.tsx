@@ -11,8 +11,8 @@ type PriceMarkerProps = {
 }
 
 export function PriceMarker({ terreno, selected, onSelect }: PriceMarkerProps) {
-  const foto = imagemPrincipal(terreno)
-  const dimensoes =
+  const photo = imagemPrincipal(terreno)
+  const sizeLabel =
     terreno.largura && terreno.comprimento
       ? `${formatArea(terreno.areaTotal)} · ${terreno.largura}×${terreno.comprimento}`
       : formatArea(terreno.areaTotal)
@@ -29,7 +29,7 @@ export function PriceMarker({ terreno, selected, onSelect }: PriceMarkerProps) {
             selected ? 'border-moss-700' : 'border-clay-600',
           )}
         >
-          {foto ? <img src={foto.url} alt="" className="h-12 w-full object-cover" /> : null}
+          {photo ? <img src={photo.url} alt="" className="h-12 w-full object-cover" /> : null}
           <div
             className={cn(
               'px-2.5 py-1 text-center font-mono text-paper',
@@ -40,7 +40,7 @@ export function PriceMarker({ terreno, selected, onSelect }: PriceMarkerProps) {
               {formatPriceShort(terreno.preco)}
             </div>
             <div className="mt-0.5 whitespace-nowrap text-[11px] font-medium leading-tight text-paper/90">
-              {dimensoes}
+              {sizeLabel}
             </div>
           </div>
         </div>

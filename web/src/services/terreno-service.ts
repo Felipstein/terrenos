@@ -1,30 +1,30 @@
-import type { Terreno } from '../types/terreno'
-import { seedTerrenos } from './seed'
+import type { Terreno, TerrenoInput } from '../types/terreno'
+import { request } from '../lib/api/http'
 
-// Contrato da camada de dados. A UI conhece só isto — não sabe se vem de um mock
-// em memória ou, no futuro, de um backend HTTP (skill frontend-conventions).
+// Camada de dados dos terrenos sobre o backend (contract/openapi.yaml).
+// A UI conhece só esta interface — não sabe que por baixo é HTTP.
+// create e update são separados porque o contrato separa POST e PUT, e o `id`
+// é gerado pelo servidor (volta no corpo da resposta).
 export interface TerrenoService {
   list(): Promise<Terreno[]>
-  save(terreno: Terreno): Promise<void>
+  create(input: TerrenoInput): Promise<Terreno>
+  update(terreno: Terreno): Promise<Terreno>
   remove(id: string): Promise<void>
 }
 
-// Mock em memória: começa do seed e **reseta a cada reload** (sem persistência).
-// Quando o backend existir, troca-se por uma implementação HTTP sem mexer na UI.
-export function createMemoryTerrenoService(initial: Terreno[] = seedTerrenos): TerrenoService {
-  let terrenos: Terreno[] = initial.map((terreno) => ({ ...terreno }))
-
+export function createHttpTerrenoService(): TerrenoService {
   return {
-    async list() {
-      return terrenos.map((terreno) => ({ ...terreno }))
+    list() {
+      return request<Terreno[]>('/terrenos')
     },
-    async save(terreno) {
-      const index = terrenos.findIndex((item) => item.id === terreno.id)
-      if (index >= 0) terrenos[index] = terreno
-      else terrenos = [...terrenos, terreno]
+    create(input) {
+      return request<Terreno>('/terrenos', { method: 'POST', body: input })
     },
-    async remove(id) {
-      terrenos = terrenos.filter((terreno) => terreno.id !== id)
+    update({ id, ...input }) {
+      return request<Terreno>(`/terrenos/${id}`, { method: 'PUT', body: input })
+    },
+    remove(id) {
+      return request<void>(`/terrenos/${id}`, { method: 'DELETE' })
     },
   }
 }
@@ -32,6 +32,6 @@ export function createMemoryTerrenoService(initial: Terreno[] = seedTerrenos): T
 let instance: TerrenoService | null = null
 
 export function getTerrenoService(): TerrenoService {
-  if (instance === null) instance = createMemoryTerrenoService()
+  if (instance === null) instance = createHttpTerrenoService()
   return instance
 }

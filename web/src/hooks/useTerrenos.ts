@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Terreno, TerrenoInput } from '../types/terreno'
 import { getTerrenoService } from '../services/terreno-service'
-import { genId } from '../lib/id'
 
 export type UseTerrenos = {
   terrenos: Terreno[]
@@ -29,14 +28,13 @@ export function useTerrenos(): UseTerrenos {
   }
 
   async function addTerreno(input: TerrenoInput): Promise<Terreno> {
-    const terreno: Terreno = { ...input, id: genId() }
-    await getTerrenoService().save(terreno)
+    const created = await getTerrenoService().create(input)
     await refresh()
-    return terreno
+    return created
   }
 
   async function updateTerreno(terreno: Terreno): Promise<void> {
-    await getTerrenoService().save(terreno)
+    await getTerrenoService().update(terreno)
     await refresh()
   }
 
