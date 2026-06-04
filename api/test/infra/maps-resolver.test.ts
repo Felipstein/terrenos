@@ -27,6 +27,13 @@ describe('HttpMapsResolver (link completo, sem rede)', () => {
     const location = await resolver.resolve('https://maps.google.com/?q=-10.1,-20.2')
     expect(location).toEqual({ lat: -10.1, lng: -20.2 })
   })
+
+  it('extrai do formato /maps/search/lat,+lng (pra onde o link curto resolve)', async () => {
+    const location = await resolver.resolve(
+      'https://www.google.com/maps/search/-24.410989,+-53.534302?entry=tts',
+    )
+    expect(location).toEqual({ lat: -24.410989, lng: -53.534302 })
+  })
 })
 
 describe('HttpMapsResolver (link curto, segue redirect)', () => {
