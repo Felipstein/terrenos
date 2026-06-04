@@ -22,6 +22,7 @@
     "@aws-sdk/s3-presigned-post": "^3.1061.0",
     "@types/aws-lambda": "^8.10.161",
     "@types/node": "^25.9.1",
+    "serverless": "^4.37.0",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3",
     "vitest": "^4.1.8"
