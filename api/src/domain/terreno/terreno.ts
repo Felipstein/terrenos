@@ -1,0 +1,73 @@
+import type { TerrenoImage } from './terreno-image'
+import { ValidationError } from '../errors'
+
+/**
+ * Entidade Terreno. Espelha o schema `Terreno` do contrato + carimbos de tempo.
+ * `areaTotal` é em m²; `largura`/`comprimento` em metros.
+ */
+export type Terreno = {
+  id: string
+  rua: string
+  preco: number
+  lat: number
+  lng: number
+  areaTotal: number
+  largura?: number
+  comprimento?: number
+  link?: string
+  imagens?: TerrenoImage[]
+  principalId?: string
+  createdAt: string
+  updatedAt: string
+}
+
+/** Dados de entrada (sem campos gerados pelo servidor). Igual ao `TerrenoInput` do contrato. */
+export type TerrenoInput = Omit<Terreno, 'id' | 'createdAt' | 'updatedAt'>
+
+/**
+ * Invariante de área: quando largura E comprimento existem, a área total é
+ * derivada deles (fonte da verdade), ignorando o valor enviado. Sem as duas
+ * medidas, usa a `areaTotal` informada.
+ */
+function resolveAreaTotal(input: TerrenoInput): number {
+  if (input.largura !== undefined && input.comprimento !== undefined) {
+    return input.largura * input.comprimento
+  }
+  return input.areaTotal
+}
+
+/**
+ * Invariante de imagem principal: se `principalId` aponta uma imagem, ela tem
+ * que estar na lista `imagens`.
+ */
+function assertPrincipalIsValid(input: TerrenoInput): void {
+  if (input.principalId === undefined) return
+  const exists = input.imagens?.some((image) => image.id === input.principalId) ?? false
+  if (!exists) {
+    throw new ValidationError('A imagem principal não está na lista de imagens')
+  }
+}
+
+/** Cria um terreno novo aplicando as invariantes de domínio. */
+export function makeTerreno(input: TerrenoInput, params: { id: string; now: string }): Terreno {
+  assertPrincipalIsValid(input)
+  return {
+    ...input,
+    id: params.id,
+    areaTotal: resolveAreaTotal(input),
+    createdAt: params.now,
+    updatedAt: params.now,
+  }
+}
+
+/** Aplica uma edição preservando `id`/`createdAt` e revalidando as invariantes. */
+export function applyTerrenoUpdate(existing: Terreno, input: TerrenoInput, now: string): Terreno {
+  assertPrincipalIsValid(input)
+  return {
+    ...input,
+    id: existing.id,
+    areaTotal: resolveAreaTotal(input),
+    createdAt: existing.createdAt,
+    updatedAt: now,
+  }
+}

@@ -164,31 +164,28 @@ paths:
 
   /uploads:
     post:
-      operationId: uploadImagem
-      summary: Faz upload de uma imagem e devolve a URL salva (storage/CDN)
+      operationId: createUpload
+      summary: Cria um alvo de upload (presigned POST) pra uma imagem
       description: >
-        Recebe um arquivo (multipart) e retorna `{ id, url }`. O `id`/`url`
-        entram em `Terreno.imagens`; o `principalId` aponta a imagem principal.
-        Hoje o front usa um mock (data URL em memória) atrás do mesmo contrato.
+        Padrão de mercado: o backend NÃO recebe o arquivo. Ele assina um
+        **presigned POST** do S3 e devolve `{ upload, image }`. O cliente faz um
+        `multipart/form-data` POST direto pro `upload.url` com os `upload.fields`
+        + o arquivo (campo `file` por último). Depois do upload, `image` (`{ id,
+        url }`) é o registro que entra em `Terreno.imagens`; `principalId` aponta
+        a principal. O policy do POST trava tamanho (até 5MB) e content-type.
       requestBody:
         required: true
         content:
-          multipart/form-data:
-            schema:
-              type: object
-              required: [file]
-              properties:
-                file:
-                  type: string
-                  format: binary
+          application/json:
+            schema: { $ref: "#/components/schemas/UploadInput" }
       responses:
         "200":
-          description: Imagem salva
+          description: Alvo de upload assinado
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/TerrenoImagem" }
+              schema: { $ref: "#/components/schemas/UploadTarget" }
         "400":
-          description: Arquivo inválido (tipo não suportado ou grande demais)
+          description: Content-type não suportado
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }
@@ -238,6 +235,31 @@ components:
       properties:
         id: { type: string }
         url: { type: string, format: uri }
+
+    UploadInput:
+      type: object
+      required: [contentType]
+      properties:
+        contentType:
+          type: string
+          enum: [image/jpeg, image/png, image/webp]
+          example: image/jpeg
+
+    UploadTarget:
+      type: object
+      required: [upload, image]
+      properties:
+        upload:
+          type: object
+          description: Dados do presigned POST do S3.
+          required: [url, fields]
+          properties:
+            url: { type: string, format: uri }
+            fields:
+              type: object
+              additionalProperties: { type: string }
+              description: Campos do form que vão ANTES do arquivo no multipart.
+        image: { $ref: "#/components/schemas/TerrenoImagem" }
 
     TerrenoInput:
       type: object

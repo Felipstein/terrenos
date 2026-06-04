@@ -13,25 +13,27 @@ provider:
     MAIN_TABLE_NAME: ${self:custom.resourceNames.MainTable}
     COGNITO_USER_POOL_ID: !Ref CognitoUserPool
     COGNITO_CLIENT_ID: !Ref CognitoUserPoolClient
+    IMAGES_BUCKET_NAME: !Ref ImagesBucket
+    PUBLIC_ASSET_BASE_URL: !Sub 'https://${ImagesBucket.RegionalDomainName}'
   iam:
     role:
       statements:
+        # DynamoDB single-table.
         - Effect: Allow
           Action:
             - dynamodb:GetItem
             - dynamodb:PutItem
-            - dynamodb:UpdateItem
             - dynamodb:DeleteItem
             - dynamodb:Query
-            - dynamodb:TransactWriteItems
           Resource:
             - !GetAtt MainTable.Arn
             - !Sub '${MainTable.Arn}/index/*'
+        # Autoriza o presigned POST: o S3 valida o upload contra a permissão do
+        # principal que assinou (esta role). Só no prefixo de imagens.
         - Effect: Allow
           Action:
-            - cognito-idp:AdminConfirmSignUp
-            - cognito-idp:AdminDeleteUser
-          Resource: !Sub 'arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*'
+            - s3:PutObject
+          Resource: !Sub '${ImagesBucket.Arn}/images/*'
   httpApi:
     cors:
       allowedOrigins: ${self:custom.corsOrigins.${self:provider.stage}}
@@ -41,10 +43,10 @@ provider:
       allowedMethods:
         - GET
         - POST
-        - PATCH
+        - PUT
         - DELETE
         - OPTIONS
-  authorizers:
+    authorizers:
       cognitoAuthorizer:
         type: jwt
         identitySource: $request.header.Authorization
@@ -57,6 +59,7 @@ custom:
     MainTable: ${self:service}-${self:provider.stage}-table
     UserPool: ${self:service}-${self:provider.stage}-user-pool
     UserPoolClient: ${self:service}-${self:provider.stage}-user-pool-client
+    ImagesBucket: ${self:service}-${self:provider.stage}-images-${aws:accountId}
   corsOrigins:
     prod:
       - '*' # trocar quando subir em prod o web
@@ -82,46 +85,29 @@ build:
       - '@aws-sdk/*'
 
 functions:
-  functions:
-  # ─── Auth (public) ───────────────────────────────────────────────────────────
-  authSignUp:
-    handler: src/functions/auth/signUp.handler
+  # ─── Público ───────────────────────────────────────────────────────────────
+  health:
+    handler: src/functions/health.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /health
+
+  authLogin:
+    handler: src/functions/auth/login.handler
     events:
       - httpApi:
           method: POST
-          path: /auth/sign-up
+          path: /auth/login
 
-  authSignIn:
-    handler: src/functions/auth/signIn.handler
+  authRefresh:
+    handler: src/functions/auth/refresh.handler
     events:
       - httpApi:
           method: POST
-          path: /auth/sign-in
+          path: /auth/refresh
 
-  authRefreshToken:
-    handler: src/functions/auth/refreshToken.handler
-    events:
-      - httpApi:
-          method: POST
-          path: /auth/refresh-token
-
-  # ─── Cognito trigger ─────────────────────────────────────────────────────────
-  cognitoPreTokenGeneration:
-    handler: src/functions/auth/preTokenGeneration.handler
-    environment:
-      COGNITO_USER_POOL_ID: ''
-      COGNITO_CLIENT_ID: ''
-
-  cognitoPreSignUpTrigger:
-    handler: src/functions/auth/preSignUpTrigger.handler
-    events:
-      - cognitoUserPool:
-          pool: ${self:custom.resourceNames.UserPool}
-          trigger: PreSignUp
-          existing: true
-          forceDeploy: true
-
-  # ─── Me (protected) ──────────────────────────────────────────────────────────
+  # ─── Protegido (Cognito JWT) ─────────────────────────────────────────────────
   meGet:
     handler: src/functions/me/get.handler
     events:
@@ -131,9 +117,63 @@ functions:
           authorizer:
             name: cognitoAuthorizer
 
+  terrenosList:
+    handler: src/functions/terrenos/list.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /terrenos
+          authorizer:
+            name: cognitoAuthorizer
+
+  terrenosCreate:
+    handler: src/functions/terrenos/create.handler
+    events:
+      - httpApi:
+          method: POST
+          path: /terrenos
+          authorizer:
+            name: cognitoAuthorizer
+
+  terrenosUpdate:
+    handler: src/functions/terrenos/update.handler
+    events:
+      - httpApi:
+          method: PUT
+          path: /terrenos/{id}
+          authorizer:
+            name: cognitoAuthorizer
+
+  terrenosDelete:
+    handler: src/functions/terrenos/delete.handler
+    events:
+      - httpApi:
+          method: DELETE
+          path: /terrenos/{id}
+          authorizer:
+            name: cognitoAuthorizer
+
+  uploadsCreate:
+    handler: src/functions/uploads/create.handler
+    events:
+      - httpApi:
+          method: POST
+          path: /uploads
+          authorizer:
+            name: cognitoAuthorizer
+
+  mapsResolveLink:
+    handler: src/functions/maps/resolveLink.handler
+    events:
+      - httpApi:
+          method: POST
+          path: /maps/resolve-link
+          authorizer:
+            name: cognitoAuthorizer
+
 resources:
   Resources:
-    # ─── DynamoDB ──────────────────────────────────────────────────────────────
+    # ─── DynamoDB (single-table) ─────────────────────────────────────────────
     MainTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -151,7 +191,41 @@ resources:
           - AttributeName: SK
             KeyType: RANGE
 
-    # ─── Cognito ───────────────────────────────────────────────────────────────
+    # ─── S3 (imagens via presigned POST) ─────────────────────────────────────
+    ImagesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.resourceNames.ImagesBucket}
+        OwnershipControls:
+          Rules:
+            - ObjectOwnership: BucketOwnerEnforced # ACLs desligadas; leitura via bucket policy
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          IgnorePublicAcls: true
+          BlockPublicPolicy: false
+          RestrictPublicBuckets: false
+        CorsConfiguration:
+          CorsRules:
+            - AllowedMethods: [POST]
+              AllowedOrigins: ${self:custom.corsOrigins.${self:provider.stage}}
+              AllowedHeaders: ['*']
+              MaxAge: 3000
+
+    # Leitura pública só do prefixo de imagens (URLs com uuid, não-enumeráveis).
+    ImagesBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref ImagesBucket
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Sid: PublicReadImages
+              Effect: Allow
+              Principal: '*'
+              Action: s3:GetObject
+              Resource: !Sub '${ImagesBucket.Arn}/images/*'
+
+    # ─── Cognito ──────────────────────────────────────────────────────────────
     CognitoUserPool:
       Type: AWS::Cognito::UserPool
       Properties:
@@ -167,15 +241,6 @@ resources:
             RequireLowercase: false
             RequireNumbers: false
             RequireSymbols: false
-        Schema:
-          - Name: accountId
-            AttributeDataType: String
-            Mutable: false
-            Required: false
-        LambdaConfig:
-          PreTokenGenerationConfig:
-            LambdaArn: !GetAtt CognitoPreTokenGenerationLambdaFunction.Arn
-            LambdaVersion: V2_0
         DeletionProtection: ${self:custom.deletionProtection.cognito.${self:provider.stage}}
 
     CognitoUserPoolClient:
@@ -184,21 +249,16 @@ resources:
         ClientName: ${self:custom.resourceNames.UserPoolClient}
         UserPoolId: !Ref CognitoUserPool
         GenerateSecret: false
+        # Com RefreshTokenRotation habilitada, o Cognito já libera o refresh flow
+        # implicitamente — listar ALLOW_REFRESH_TOKEN_AUTH aqui dá erro de deploy.
         ExplicitAuthFlows:
           - ALLOW_USER_PASSWORD_AUTH
         PreventUserExistenceErrors: ENABLED
         TokenValidityUnits:
           AccessToken: days
+          RefreshToken: days
         AccessTokenValidity: 1
+        RefreshTokenValidity: 365 # refresh longo + rotativo = "nunca relogar"
         RefreshTokenRotation:
           Feature: ENABLED
           RetryGracePeriodSeconds: 0
-
-    # ─── Permission for Cognito to invoke the Pre Token Generation Lambda ──────
-    CognitoPreTokenGenerationPermission:
-      Type: AWS::Lambda::Permission
-      Properties:
-        Action: lambda:InvokeFunction
-        FunctionName: !GetAtt CognitoPreTokenGenerationLambdaFunction.Arn
-        Principal: cognito-idp.amazonaws.com
-        SourceArn: !GetAtt CognitoUserPool.Arn

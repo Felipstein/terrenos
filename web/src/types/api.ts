@@ -120,10 +120,10 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Faz upload de uma imagem e devolve a URL salva (storage/CDN)
-         * @description Recebe um arquivo (multipart) e retorna `{ id, url }`. O `id`/`url` entram em `Terreno.imagens`; o `principalId` aponta a imagem principal. Hoje o front usa um mock (data URL em memória) atrás do mesmo contrato.
+         * Cria um alvo de upload (presigned POST) pra uma imagem
+         * @description Padrão de mercado: o backend NÃO recebe o arquivo. Ele assina um **presigned POST** do S3 e devolve `{ upload, image }`. O cliente faz um `multipart/form-data` POST direto pro `upload.url` com os `upload.fields` + o arquivo (campo `file` por último). Depois do upload, `image` (`{ id, url }`) é o registro que entra em `Terreno.imagens`; `principalId` aponta a principal. O policy do POST trava tamanho (até 5MB) e content-type.
          */
-        post: operations["uploadImagem"];
+        post: operations["createUpload"];
         delete?: never;
         options?: never;
         head?: never;
@@ -165,6 +165,25 @@ export interface components {
             id: string;
             /** Format: uri */
             url: string;
+        };
+        UploadInput: {
+            /**
+             * @example image/jpeg
+             * @enum {string}
+             */
+            contentType: "image/jpeg" | "image/png" | "image/webp";
+        };
+        UploadTarget: {
+            /** @description Dados do presigned POST do S3. */
+            upload: {
+                /** Format: uri */
+                url: string;
+                /** @description Campos do form que vão ANTES do arquivo no multipart. */
+                fields: {
+                    [key: string]: string;
+                };
+            };
+            image: components["schemas"]["TerrenoImagem"];
         };
         TerrenoInput: {
             /** @example Rua das Palmeiras, 120 */
@@ -487,7 +506,7 @@ export interface operations {
             };
         };
     };
-    uploadImagem: {
+    createUpload: {
         parameters: {
             query?: never;
             header?: never;
@@ -496,23 +515,20 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "multipart/form-data": {
-                    /** Format: binary */
-                    file: string;
-                };
+                "application/json": components["schemas"]["UploadInput"];
             };
         };
         responses: {
-            /** @description Imagem salva */
+            /** @description Alvo de upload assinado */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TerrenoImagem"];
+                    "application/json": components["schemas"]["UploadTarget"];
                 };
             };
-            /** @description Arquivo inválido (tipo não suportado ou grande demais) */
+            /** @description Content-type não suportado */
             400: {
                 headers: {
                     [name: string]: unknown;
