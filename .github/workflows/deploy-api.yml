@@ -1,0 +1,76 @@
+name: Deploy API (prod)
+
+# Backend-only. O front sobe sozinho na Vercel — este workflow só roda quando
+# algo em api/ (ou no próprio workflow) chega na main.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/**'
+      - '.github/workflows/deploy-api.yml'
+  workflow_dispatch: # permite disparar manual pela aba Actions
+
+# Um deploy por vez. Não cancela um deploy em andamento (CloudFormation no meio
+# de um update é pior que esperar).
+concurrency:
+  group: deploy-api-prod
+  cancel-in-progress: false
+
+# OIDC: o job pega um token do GitHub e assume a IAM role na AWS. Nenhuma chave
+# estática guardada — id-token:write é o que habilita isso.
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: api/pnpm-lock.yaml
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      # ── Gate de qualidade: typecheck + testes antes de tocar na AWS ──────────
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Test
+        run: pnpm run test
+
+      # ── Credenciais AWS via OIDC (sem secret de access key) ─────────────────
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: sa-east-1
+
+      # ── Deploy ──────────────────────────────────────────────────────────────
+      - name: Serverless deploy (prod)
+        run: pnpm run deploy --stage prod
+        env:
+          # Serverless Framework v4 exige autenticação em CI.
+          SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+
+      # ── Seed pós-deploy (idempotente: não recria se a conta já existe) ───────
+      # A senha vem do secret, nunca do repo (público).
+      - name: Seed conta (prod)
+        run: pnpm run seed --stage prod --password "$SEED_PASSWORD"
+        env:
+          SEED_PASSWORD: ${{ secrets.SEED_PASSWORD }}
+          AWS_REGION: sa-east-1

@@ -8,7 +8,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "seed": "tsx scripts/seed.ts",
-    "deploy": "serverless deploy"
+    "deploy": "serverless deploy",
+    "setup:oidc": "./scripts/setup-oidc-provider.sh"
   },
   "dependencies": {
     "zod": "^4.4.3"

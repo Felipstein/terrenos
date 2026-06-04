@@ -60,6 +60,10 @@ custom:
     UserPool: ${self:service}-${self:provider.stage}-user-pool
     UserPoolClient: ${self:service}-${self:provider.stage}-user-pool-client
     ImagesBucket: ${self:service}-${self:provider.stage}-images-${aws:accountId}
+  github:
+    org: Felipstein # case-sensitive no sub do OIDC (≠ org do dashboard Serverless)
+    repo: terrenos
+    branch: main
   corsOrigins:
     prod:
       - 'https://terrenos-omega.vercel.app'
@@ -263,3 +267,45 @@ resources:
         RefreshTokenRotation:
           Feature: ENABLED
           RetryGracePeriodSeconds: 0
+
+    # ─── GitHub Actions OIDC ────────────────────────────────────────────────────
+    # Role que o CI assume pra deployar (sem access key estática). Criada SÓ no
+    # stack de prod (Condition: IsProd). O OIDC Provider é único por conta e NÃO
+    # entra aqui — criado uma vez via scripts/setup-oidc-provider.sh.
+    # Trust travado neste repo + branch main (sub é case-sensitive).
+    GitHubActionsRole:
+      Type: AWS::IAM::Role
+      Condition: IsProd
+      Properties:
+        RoleName: ${self:service}-github-actions-role
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Federated: !Sub 'arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com'
+              Action: sts:AssumeRoleWithWebIdentity
+              Condition:
+                StringEquals:
+                  token.actions.githubusercontent.com:aud: sts.amazonaws.com
+                StringLike:
+                  token.actions.githubusercontent.com:sub: !Sub 'repo:${self:custom.github.org}/${self:custom.github.repo}:ref:refs/heads/${self:custom.github.branch}'
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/PowerUserAccess
+        Policies:
+          - PolicyName: IAMRestrictedToProject
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action: iam:*
+                  Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${self:service}-*'
+
+  Conditions:
+    IsProd: !Equals ['${self:provider.stage}', 'prod']
+
+  Outputs:
+    GitHubActionsRoleArn:
+      Condition: IsProd
+      Description: ARN da role pro secret AWS_DEPLOY_ROLE_ARN do GitHub
+      Value: !GetAtt GitHubActionsRole.Arn

@@ -88,8 +88,50 @@ pnpm seed --password '<senha>' --stage prod   # prod
 
 > Seed num app serverless é um **script local one-off** (`scripts/seed.ts`), rodado
 > contra os recursos já deployados — não é um endpoint/Lambda. Idempotente. Sem
-> senha no repo: a senha vem sempre por `--password`. Quando houver CI/CD, esse
-> mesmo comando vira um step pós-deploy (senha vinda de secret/OIDC).
+> senha no repo: a senha vem sempre por `--password`. No CI/CD esse mesmo comando
+> é um step pós-deploy (senha vinda de secret).
+
+## CI/CD (deploy automático de prod)
+
+Workflow: `.github/workflows/deploy-api.yml`. Backend-only — o front sobe sozinho
+na Vercel. Toda vez que um commit que toca `api/**` chega na `main`:
+
+1. `pnpm install --frozen-lockfile`
+2. **`pnpm run typecheck`** + **`pnpm run test`** (gate — falhou, não deploya)
+3. `serverless deploy --stage prod`
+4. `pnpm run seed --stage prod` (idempotente; senha vinda do secret)
+
+**Auth na AWS via OIDC** (`aws-actions/configure-aws-credentials`): o GitHub assume
+uma IAM role por token de curta duração. **Nenhuma access key estática** guardada —
+ideal pra repo público. A role (`GitHubActionsRole`) é **IaC**: vive no
+`serverless.yml`, criada só no stack de prod (`Condition: IsProd`), e a trust policy
+só aceita `repo:Felipstein/terrenos:ref:refs/heads/main`.
+
+### Setup (uma vez só)
+
+```bash
+# 1) OIDC provider do GitHub (único por conta AWS; idempotente).
+cd api && pnpm setup:oidc
+
+# 2) 1º deploy de prod LOCAL (com suas creds admin) — é ele que cria a role.
+#    Bootstrap: a partir daqui o CI assume a role sozinho.
+pnpm run deploy --stage prod
+
+# 3) Pegue o ARN da role no output do deploy (chave GitHubActionsRoleArn).
+#    Se precisar de novo depois:
+aws cloudformation describe-stacks --stack-name terrenos-prod \
+  --query "Stacks[0].Outputs[?OutputKey=='GitHubActionsRoleArn'].OutputValue" --output text
+```
+
+```text
+# 4) GitHub → Settings → Secrets and variables → Actions → New repository secret:
+AWS_DEPLOY_ROLE_ARN    ARN do passo 3 (arn:aws:iam::<conta>:role/terrenos-github-actions-role)
+SEED_PASSWORD          a senha da conta única (fica só no secret, nunca no repo)
+SERVERLESS_ACCESS_KEY  access key do Serverless Framework v4 (app.serverless.com → Access Keys)
+```
+
+Depois disso, é só dar merge na `main`. Pra rodar sem commit: aba **Actions →
+Deploy API (prod) → Run workflow**.
 
 ## Variáveis de ambiente (injetadas pelo serverless.yml)
 
