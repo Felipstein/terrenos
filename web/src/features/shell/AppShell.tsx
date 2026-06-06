@@ -25,6 +25,7 @@ export function AppShell({ onLogout }: AppShellProps) {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Terreno | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   const searched = filterTerrenos(terrenos, query, corretora) // mapa: ordem estável (sem piscar)
   const visible = sortTerrenos(searched, sort) // tabela: ordenada
@@ -54,11 +55,16 @@ export function AppShell({ onLogout }: AppShellProps) {
     setFormOpen(false) // só fecha o form quando terminou de salvar
   }
 
-  function confirmDelete() {
-    if (!deletingId) return
-    removeTerreno(deletingId)
-    setSelectedId(null)
-    setDeletingId(null)
+  async function confirmDelete() {
+    if (!deletingId || deleteLoading) return
+    setDeleteLoading(true)
+    try {
+      await removeTerreno(deletingId)
+      setSelectedId(null)
+      setDeletingId(null)
+    } finally {
+      setDeleteLoading(false)
+    }
   }
 
   return (
@@ -139,6 +145,8 @@ export function AppShell({ onLogout }: AppShellProps) {
             : undefined
         }
         confirmLabel="Excluir"
+        loading={deleteLoading}
+        loadingLabel="Excluindo…"
         onConfirm={confirmDelete}
         onClose={() => setDeletingId(null)}
       />

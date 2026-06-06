@@ -15,6 +15,9 @@ type AlertDialogProps = {
   confirmLabel: string
   cancelLabel?: string
   icon?: ReactNode
+  /** Em andamento (ex: excluindo): trava os botões/fechamento e mostra o loadingLabel. */
+  loading?: boolean
+  loadingLabel?: string
   onConfirm: () => void
   onClose: () => void
 }
@@ -28,6 +31,8 @@ export function AlertDialog({
   confirmLabel,
   cancelLabel = 'Cancelar',
   icon = trashIcon,
+  loading = false,
+  loadingLabel,
   onConfirm,
   onClose,
 }: AlertDialogProps) {
@@ -43,7 +48,10 @@ export function AlertDialog({
         type="button"
         aria-label="Fechar"
         tabIndex={open ? 0 : -1}
-        onClick={onClose}
+        disabled={loading}
+        onClick={() => {
+          if (!loading) onClose()
+        }}
         className="absolute inset-0 bg-ink/50"
       />
       <div
@@ -64,11 +72,11 @@ export function AlertDialog({
           </div>
         </div>
         <div className="mt-5 flex justify-end gap-2">
-          <Button variant="ghost" className="border border-line" onClick={onClose}>
+          <Button variant="ghost" className="border border-line" disabled={loading} onClick={onClose}>
             {cancelLabel}
           </Button>
-          <Button variant="accent" onClick={onConfirm}>
-            {confirmLabel}
+          <Button variant="accent" disabled={loading} onClick={onConfirm}>
+            {loading ? (loadingLabel ?? confirmLabel) : confirmLabel}
           </Button>
         </div>
       </div>
