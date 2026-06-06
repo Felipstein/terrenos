@@ -22,7 +22,7 @@ Campos canônicos (independe de onde os dados ficam guardados).
 |-------|------|-------------|-------|
 | `id` | string | sim | identificador único |
 | `rua` | string | sim | endereço; autopreenchido via geocoding, **editável** |
-| `preco` | number | sim | em BRL |
+| `preco` | number | não | em BRL; **opcional** — ausente quando ainda está a negociar |
 | `lat` | number | sim | latitude do pin |
 | `lng` | number | sim | longitude do pin |
 | `areaTotal` | number | sim | área total em m² |
@@ -33,6 +33,9 @@ Campos canônicos (independe de onde os dados ficam guardados).
 | `principalId` | string | não | id da imagem principal (pin, hover da tabela, detalhe) |
 
 > `imagemPrincipal(terreno)` (`lib/imagem.ts`) = a marcada por `principalId`, senão a 1ª. Upload via `upload-service.ts` (mock: data URL em memória; backend depois retorna URL remota — só troca a impl). Estados de upload no hook `useImageUploads`.
+
+## Preço ausente (a negociar)
+`preco` é opcional. Sem valor, exibe-se o rótulo **"Sob consulta"** (`PRICE_TBD` em `lib/format.ts`) via `displayPrice` / `displayPriceShort` — **não** chamar `formatPrice` direto com valor possivelmente `undefined`. No mapa o pin sem preço usa cor **taupe** (vs. clay com preço, moss selecionado). Na ordenação por preço, os sem-preço vão sempre pro **fim** (asc e desc).
 
 ## Auto-cálculo das medidas
 `total = largura × comprimento`. Preenchidos 2, o 3º se completa. Lógica pura e testada em `lib/area.ts` (`recalcArea`) — **não** reimplementar inline.

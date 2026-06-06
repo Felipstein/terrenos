@@ -1,6 +1,6 @@
 import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { ChangeEvent } from 'react'
+import { useEffect, type ChangeEvent } from 'react'
 import type { Terreno, TerrenoInput } from '../../types/terreno'
 import { terrenoSchema } from '../../lib/terreno-validation'
 import { recalcArea, type AreaField } from '../../lib/area'
@@ -15,7 +15,7 @@ import { ImageUploader } from '../../components/ImageUploader/ImageUploader'
 
 type TerrenoFormValues = {
   rua: string
-  preco: number
+  preco?: number
   lat: number
   lng: number
   areaTotal: number
@@ -29,6 +29,7 @@ type TerrenoFormProps = {
   centerLat: number
   centerLng: number
   onSubmit: (input: TerrenoInput) => Promise<void> | void
+  onDirtyChange?: (dirty: boolean) => void
 }
 
 function numU(value: number | undefined): number | undefined {
@@ -49,7 +50,13 @@ function toDefaults(initial: Terreno | null, lat: number, lng: number): Partial<
   }
 }
 
-export function TerrenoForm({ initial, centerLat, centerLng, onSubmit }: TerrenoFormProps) {
+export function TerrenoForm({
+  initial,
+  centerLat,
+  centerLng,
+  onSubmit,
+  onDirtyChange,
+}: TerrenoFormProps) {
   const reverseGeocode = useReverseGeocode()
   const {
     register,
@@ -57,7 +64,7 @@ export function TerrenoForm({ initial, centerLat, centerLng, onSubmit }: Terreno
     setValue,
     getValues,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, dirtyFields },
   } = useForm<TerrenoFormValues>({
     resolver: zodResolver(terrenoSchema) as Resolver<TerrenoFormValues>,
     defaultValues: toDefaults(initial, centerLat, centerLng),
@@ -67,11 +74,21 @@ export function TerrenoForm({ initial, centerLat, centerLng, onSubmit }: Terreno
   const lng = watch('lng')
   const uploads = useImageUploads(initial?.imagens, initial?.principalId)
 
+  // Avisa o sheet quando há alterações não salvas (campos do form ou galeria),
+  // pra ele confirmar antes de fechar sem querer. Usamos `dirtyFields` em vez de
+  // `isDirty`: o `isDirty` do react-hook-form "pisca" true num form intocado
+  // (comparação interna com valueAsNumber/NaN), enquanto `dirtyFields` só ganha
+  // chaves quando um campo é de fato alterado.
+  const dirty = Object.keys(dirtyFields).length > 0 || uploads.dirty
+  useEffect(() => {
+    onDirtyChange?.(dirty)
+  }, [dirty, onDirtyChange])
+
   async function applyPoint(nextLat: number, nextLng: number) {
-    setValue('lat', nextLat, { shouldValidate: true })
-    setValue('lng', nextLng, { shouldValidate: true })
+    setValue('lat', nextLat, { shouldValidate: true, shouldDirty: true })
+    setValue('lng', nextLng, { shouldValidate: true, shouldDirty: true })
     const address = await reverseGeocode(nextLat, nextLng)
-    if (address) setValue('rua', address, { shouldValidate: true })
+    if (address) setValue('rua', address, { shouldValidate: true, shouldDirty: true })
   }
 
   const areaRegisters = {
@@ -120,9 +137,9 @@ export function TerrenoForm({ initial, centerLat, centerLng, onSubmit }: Terreno
 
       <CurrencyField
         id="preco"
-        label="Preço"
+        label="Preço (opcional)"
         value={watch('preco')}
-        onChange={(next) => setValue('preco', next as number, { shouldValidate: true })}
+        onChange={(next) => setValue('preco', next, { shouldValidate: true, shouldDirty: true })}
         error={errors.preco?.message}
       />
 

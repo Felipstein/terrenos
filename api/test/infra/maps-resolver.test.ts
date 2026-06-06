@@ -46,6 +46,18 @@ describe('HttpMapsResolver (link curto, segue redirect)', () => {
     expect(location).toEqual({ lat: -1.5, lng: -2.5 })
   })
 
+  it('NÃO manda User-Agent de browser (senão o goo.gl serve interstitial sem redirect)', async () => {
+    const fetchMock = vi.fn(
+      async (_url: string, _init?: RequestInit) =>
+        ({ url: 'https://www.google.com/maps/@-1.5,-2.5,17z' }) as Response,
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    await resolver.resolve('https://maps.app.goo.gl/abc123')
+    const headers = (fetchMock.mock.calls[0]?.[1]?.headers ?? {}) as Record<string, string>
+    const keys = Object.keys(headers).map((k) => k.toLowerCase())
+    expect(keys).not.toContain('user-agent')
+  })
+
   it('lança ValidationError quando não há coordenadas', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ url: 'https://example.com/nada' }) as Response))
     await expect(resolver.resolve('https://maps.app.goo.gl/zzz')).rejects.toBeInstanceOf(

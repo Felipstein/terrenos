@@ -33,3 +33,14 @@ export function formatPriceShort(value: number): string {
   if (value >= 1_000) return `R$ ${compact(value / 1_000)} mil`
   return formatPrice(value)
 }
+
+// Rótulo quando o terreno ainda não tem preço (a negociar).
+export const PRICE_TBD = 'Sob consulta'
+
+export function displayPrice(value: number | undefined): string {
+  return value === undefined ? PRICE_TBD : formatPrice(value)
+}
+
+export function displayPriceShort(value: number | undefined): string {
+  return value === undefined ? PRICE_TBD : formatPriceShort(value)
+}

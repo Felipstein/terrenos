@@ -17,7 +17,14 @@ describe('terrenoSchema', () => {
     expect(terrenoSchema.safeParse({ ...base, rua: '  ' }).success).toBe(false)
   })
 
-  it('rejeita preço <= 0', () => {
+  it('aceita preço ausente (a negociar)', () => {
+    const { preco, ...semPreco } = base
+    void preco
+    expect(terrenoSchema.safeParse(semPreco).success).toBe(true)
+    expect(terrenoSchema.safeParse({ ...semPreco, preco: '' }).success).toBe(true)
+  })
+
+  it('rejeita preço <= 0 quando informado', () => {
     expect(terrenoSchema.safeParse({ ...base, preco: 0 }).success).toBe(false)
   })
 

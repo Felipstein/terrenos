@@ -2,23 +2,32 @@ import type { ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 import { Button } from '../Button/Button'
 
+const trashIcon = (
+  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 6h18M8 6V4h8v2m1 0v14a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V6m3 4v6m4-6v6" />
+  </svg>
+)
+
 type AlertDialogProps = {
   open: boolean
   title: string
   description?: ReactNode
   confirmLabel: string
   cancelLabel?: string
+  icon?: ReactNode
   onConfirm: () => void
   onClose: () => void
 }
 
-// Diálogo de confirmação destrutiva (centralizado, mobile e desktop).
+// Diálogo de confirmação (centralizado, mobile e desktop). Por padrão é
+// destrutivo (ícone de lixeira); passe `icon` pra outros contextos.
 export function AlertDialog({
   open,
   title,
   description,
   confirmLabel,
   cancelLabel = 'Cancelar',
+  icon = trashIcon,
   onConfirm,
   onClose,
 }: AlertDialogProps) {
@@ -47,9 +56,7 @@ export function AlertDialog({
       >
         <div className="flex items-start gap-3">
           <div className="grid h-10 w-10 shrink-0 place-items-center rounded-sm bg-clay/12 text-clay">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 6h18M8 6V4h8v2m1 0v14a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V6m3 4v6m4-6v6" />
-            </svg>
+            {icon}
           </div>
           <div className="min-w-0 pt-0.5">
             <h2 className="font-serif text-lg font-semibold text-ink">{title}</h2>

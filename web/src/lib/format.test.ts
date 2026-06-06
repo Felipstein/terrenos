@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { formatArea, formatPrice, formatPriceShort } from './format'
+import {
+  displayPrice,
+  displayPriceShort,
+  formatArea,
+  formatPrice,
+  formatPriceShort,
+  PRICE_TBD,
+} from './format'
 
 describe('formatPrice', () => {
   it('formata em reais sem centavos', () => {
@@ -25,5 +32,17 @@ describe('formatPriceShort', () => {
 
   it('mantém valor cheio abaixo de mil', () => {
     expect(formatPriceShort(900)).toBe('R$ 900')
+  })
+})
+
+describe('displayPrice / displayPriceShort', () => {
+  it('formata quando há valor', () => {
+    expect(displayPrice(185000)).toBe('R$ 185.000')
+    expect(displayPriceShort(185000)).toBe('R$ 185 mil')
+  })
+
+  it('usa o rótulo "Sob consulta" quando não há preço', () => {
+    expect(displayPrice(undefined)).toBe(PRICE_TBD)
+    expect(displayPriceShort(undefined)).toBe(PRICE_TBD)
   })
 })

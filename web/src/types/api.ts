@@ -189,10 +189,10 @@ export interface components {
             /** @example Rua das Palmeiras, 120 */
             rua: string;
             /**
-             * @description BRL
+             * @description BRL. Opcional — ausente quando o preço ainda está a negociar.
              * @example 185000
              */
-            preco: number;
+            preco?: number;
             /** @example -22.9056 */
             lat: number;
             /** @example -47.0608 */

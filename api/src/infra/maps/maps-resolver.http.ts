@@ -13,13 +13,15 @@ const COORDINATE_PATTERNS: RegExp[] = [
   /[?&](?:q|query|destination|center|ll)=(-?\d+\.\d+),\s*(-?\d+\.\d+)/,
 ]
 
-// Google às vezes derruba a conexão vinda do IP do datacenter (anti-bot), dando
-// ETIMEDOUT intermitente. UA de browser ajuda e o timeout falha rápido. O RETRY
-// fica no front (evita compor latência: backend 1x, front até 3x).
+// IMPORTANTE: NÃO mandar User-Agent de browser. Com UA de browser o
+// maps.app.goo.gl responde 200 + uma página HTML interstitial (sem o redirect
+// 3xx), e a URL final continua sendo o próprio link curto → resolve sem
+// coordenadas. Com o UA default do runtime, o Google devolve o 302 com Location
+// pro link COMPLETO, que é o que o `redirect: 'follow'` precisa pra expor a URL
+// final. Só Accept-Language pra locale pt-BR. O RETRY fica no front (backend 1x,
+// front até 3x), pra não compor latência.
 const REQUEST_TIMEOUT_MS = 4000
-const BROWSER_HEADERS = {
-  'User-Agent':
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+const REQUEST_HEADERS = {
   'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
 }
 
@@ -52,7 +54,7 @@ async function resolveFinalUrl(url: string): Promise<string> {
     const response = await fetch(url, {
       redirect: 'follow',
       signal: controller.signal,
-      headers: BROWSER_HEADERS,
+      headers: REQUEST_HEADERS,
     })
     return response.url
   } finally {

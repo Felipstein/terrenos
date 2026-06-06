@@ -27,7 +27,7 @@ export type TerrenoImagem = z.infer<typeof terrenoImagemSchema>
 
 export const terrenoSchema = z.object({
   rua: z.string().trim().min(1, 'Informe a rua'),
-  preco: requiredPositive('Preço deve ser maior que zero'),
+  preco: optionalPositive,
   lat: z.coerce.number().refine(Number.isFinite, 'Selecione o local no mapa'),
   lng: z.coerce.number().refine(Number.isFinite, 'Selecione o local no mapa'),
   areaTotal: requiredPositive('Área deve ser maior que zero'),

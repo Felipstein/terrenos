@@ -8,6 +8,7 @@ export type UseImageUploads = {
   images: ImageUpload[]
   principalId: string | undefined
   uploading: boolean
+  dirty: boolean
   addFiles: (files: FileList | File[]) => void
   retry: (id: string) => void
   remove: (id: string) => void
@@ -33,6 +34,9 @@ export function useImageUploads(
     initialPrincipal ?? initial[0]?.id,
   )
   const filesRef = useRef(new Map<string, File>())
+  // Alterações em imagens não passam pelo react-hook-form, então marcamos à mão
+  // pra o guard de "descartar alterações" detectar mexidas na galeria.
+  const [dirty, setDirty] = useState(false)
 
   function patch(id: string, value: Partial<ImageUpload>) {
     setImages((prev) => prev.map((item) => (item.id === id ? { ...item, ...value } : item)))
@@ -49,6 +53,7 @@ export function useImageUploads(
   }
 
   function addFiles(files: FileList | File[]) {
+    if (files.length > 0) setDirty(true)
     for (const file of Array.from(files)) {
       const id = genId()
       filesRef.current.set(id, file)
@@ -72,6 +77,7 @@ export function useImageUploads(
   }
 
   function remove(id: string) {
+    setDirty(true)
     setImages((prev) => {
       const target = prev.find((item) => item.id === id)
       if (target && target.previewUrl.startsWith('blob:')) URL.revokeObjectURL(target.previewUrl)
@@ -82,6 +88,7 @@ export function useImageUploads(
   }
 
   function setPrincipal(id: string) {
+    setDirty(true)
     setPrincipalId(id)
   }
 
@@ -97,6 +104,7 @@ export function useImageUploads(
     images,
     principalId,
     uploading: images.some((item) => item.status === 'uploading'),
+    dirty,
     addFiles,
     retry,
     remove,

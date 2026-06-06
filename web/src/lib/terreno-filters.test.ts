@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { Terreno } from '../types/terreno'
 import { filterAndSort } from './terreno-filters'
 
-function terreno(id: string, rua: string, preco: number, areaTotal = 200): Terreno {
+function terreno(id: string, rua: string, preco: number | undefined, areaTotal = 200): Terreno {
   return { id, rua, preco, lat: -22.9, lng: -47.0, areaTotal }
 }
 
@@ -29,6 +29,24 @@ describe('filterAndSort', () => {
     ])
     expect(filterAndSort(data, { query: '', sort: 'area-desc' }).map((t) => t.areaTotal)).toEqual([
       500, 300, 100,
+    ])
+  })
+
+  it('manda terrenos sem preço pro fim (asc e desc)', () => {
+    const comPrecoVazio: Terreno[] = [
+      terreno('a', 'Rua A', 300000),
+      terreno('x', 'Rua X', undefined),
+      terreno('b', 'Rua B', 100000),
+    ]
+    expect(filterAndSort(comPrecoVazio, { query: '', sort: 'price-asc' }).map((t) => t.id)).toEqual([
+      'b',
+      'a',
+      'x',
+    ])
+    expect(filterAndSort(comPrecoVazio, { query: '', sort: 'price-desc' }).map((t) => t.id)).toEqual([
+      'a',
+      'b',
+      'x',
     ])
   })
 

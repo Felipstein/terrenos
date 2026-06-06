@@ -263,10 +263,10 @@ components:
 
     TerrenoInput:
       type: object
-      required: [rua, preco, lat, lng, areaTotal]
+      required: [rua, lat, lng, areaTotal]
       properties:
         rua: { type: string, example: "Rua das Palmeiras, 120" }
-        preco: { type: number, description: BRL, example: 185000 }
+        preco: { type: number, description: "BRL. Opcional — ausente quando o preço ainda está a negociar.", example: 185000 }
         lat: { type: number, example: -22.9056 }
         lng: { type: number, example: -47.0608 }
         areaTotal: { type: number, description: m², example: 250 }

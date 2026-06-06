@@ -5,7 +5,7 @@ import {
   BottomSheetRoot,
 } from '../../components/BottomSheet'
 import { Button } from '../../components/Button/Button'
-import { formatPrice } from '../../lib/format'
+import { formatPrice, PRICE_TBD } from '../../lib/format'
 import { TerrenoGallery } from './TerrenoGallery'
 import { TerrenoInfo } from './TerrenoInfo'
 import { RouteButton } from './RouteButton'
@@ -30,9 +30,13 @@ export function TerrenoSheet({ terreno, open, onClose, onEdit, onDelete }: Terre
             ) : null}
 
             <div className="px-5">
-              <p className="font-mono text-3xl font-semibold tracking-tight text-ink">
-                {formatPrice(terreno.preco)}
-              </p>
+              {terreno.preco === undefined ? (
+                <p className="font-serif text-2xl font-semibold text-taupe">{PRICE_TBD}</p>
+              ) : (
+                <p className="font-mono text-3xl font-semibold tracking-tight text-ink">
+                  {formatPrice(terreno.preco)}
+                </p>
+              )}
               <p className="mt-1 font-serif text-base text-moss">{terreno.rua}</p>
             </div>
 
