@@ -20,6 +20,7 @@ export const terrenoInputSchema = z.object({
   comprimento: z.optional(z.number().check(z.positive())),
   link: z.optional(z.url('Link inválido')),
   whatsapp: z.optional(z.string().check(z.minLength(1))),
+  corretora: z.optional(z.string().check(z.minLength(1))),
   imagens: z.optional(z.array(terrenoImageSchema)),
   principalId: z.optional(z.string()),
 })

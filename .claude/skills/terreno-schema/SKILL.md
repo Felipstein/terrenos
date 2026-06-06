@@ -30,6 +30,7 @@ Campos canônicos (independe de onde os dados ficam guardados).
 | `comprimento` | number | não | metros |
 | `link` | string | não | anúncio do corretor |
 | `whatsapp` | string | não | telefone/WhatsApp do contato; texto livre. Deep-link `wa.me` via `lib/whatsapp.ts` (`buildWhatsappUrl`, prefixa DDI 55 se faltar). Botão "Chamar no WhatsApp" no detalhe quando preenchido |
+| `corretora` | string | não | no Terreno é só o **nome canônico** (string; 1º cadastro vence). A entidade `Corretora { slug, name }` é deduplicada por **slug** (chave `CORRETORA#<slug>` no single-table); o slug é gerado/usado no backend e o front filtra/exibe por **nome**. Nasce ao salvar terreno; `GET /corretoras` alimenta autocomplete (`Combobox`) e filtro. Nome pequeno no pin e no detalhe |
 | `imagens` | `TerrenoImagem[]` | não | `{ id, url }` — opcional |
 | `principalId` | string | não | id da imagem principal (pin, hover da tabela, detalhe) |
 

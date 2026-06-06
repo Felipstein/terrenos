@@ -150,6 +150,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/corretoras": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lista as corretoras usadas na conta (pra autocomplete e filtro) */
+        get: operations["listCorretoras"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -219,12 +236,26 @@ export interface components {
              * @example (45) 99999-0000
              */
             whatsapp?: string;
+            /**
+             * @description Nome da corretora (opcional, texto livre). O backend deduplica por slug e guarda/retorna o nome canônico do 1º cadastro.
+             * @example Imobiliária Silva
+             */
+            corretora?: string;
             imagens?: components["schemas"]["TerrenoImagem"][];
             /** @description id da imagem principal (aparece no pin/tabela/detalhe) */
             principalId?: string;
         };
         Terreno: components["schemas"]["TerrenoInput"] & {
             id: string;
+        };
+        Corretora: {
+            /**
+             * @description chave de dedup derivada do nome
+             * @example imobiliaria-silva
+             */
+            slug: string;
+            /** @example Imobiliária Silva */
+            name: string;
         };
         LoginInput: {
             /** @description identificador de login do usuário; carrega o e-mail. */
@@ -573,6 +604,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listCorretoras: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lista de corretoras */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Corretora"][];
                 };
             };
         };

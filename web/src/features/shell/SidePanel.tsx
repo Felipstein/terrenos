@@ -1,4 +1,5 @@
 import type { Terreno } from '../../types/terreno'
+import type { Corretora } from '../../types/corretora'
 import type { SortOrder } from '../../lib/terreno-filters'
 import { Button } from '../../components/Button/Button'
 import { Logo } from '../../components/Logo/Logo'
@@ -10,8 +11,11 @@ type SidePanelProps = {
   selectedId: string | null
   query: string
   sort: SortOrder
+  corretoras: Corretora[]
+  corretora: string
   onQuery: (value: string) => void
   onSort: (sort: SortOrder) => void
+  onCorretora: (value: string) => void
   onSelect: (id: string) => void
   onAdd: () => void
   onLogout: () => void
@@ -23,8 +27,11 @@ export function SidePanel({
   selectedId,
   query,
   sort,
+  corretoras,
+  corretora,
   onQuery,
   onSort,
+  onCorretora,
   onSelect,
   onAdd,
   onLogout,
@@ -46,7 +53,14 @@ export function SidePanel({
         </Button>
       </header>
 
-      <TerrenoSearch query={query} count={terrenos.length} onQuery={onQuery} />
+      <TerrenoSearch
+        query={query}
+        count={terrenos.length}
+        corretoras={corretoras}
+        corretora={corretora}
+        onQuery={onQuery}
+        onCorretora={onCorretora}
+      />
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         <TerrenoTable

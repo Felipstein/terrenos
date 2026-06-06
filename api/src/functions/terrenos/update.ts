@@ -6,10 +6,14 @@ import { parseBody, requirePathParam } from '../../http/validate'
 import { terrenoInputSchema } from '../../schemas/terreno.schema'
 import { UpdateTerreno } from '../../application/terreno/update-terreno'
 import { DynamoTerrenoRepository } from '../../infra/dynamo/terreno-repository.dynamo'
+import { DynamoCorretoraRepository } from '../../infra/dynamo/corretora-repository.dynamo'
 import { documentClient } from '../../infra/dynamo/client'
 import { env } from '../../config/env'
 
-const useCase = new UpdateTerreno(new DynamoTerrenoRepository(documentClient, env.tableName))
+const useCase = new UpdateTerreno(
+  new DynamoTerrenoRepository(documentClient, env.tableName),
+  new DynamoCorretoraRepository(documentClient, env.tableName),
+)
 
 /** `PUT /terrenos/{id}` — protegida. Atualiza um terreno. */
 export const handler = makeHandler(async (event: APIGatewayProxyEventV2WithJWTAuthorizer) => {

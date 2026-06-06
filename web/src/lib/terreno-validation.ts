@@ -45,6 +45,10 @@ export const terrenoSchema = z.object({
     (v) => (typeof v === 'string' && v.trim() === '' ? undefined : v),
     z.string().refine(isValidWhatsapp, 'WhatsApp inválido').optional(),
   ),
+  corretora: z.preprocess(
+    (v) => (typeof v === 'string' && v.trim() === '' ? undefined : v),
+    z.string().optional(),
+  ),
   imagens: z.array(terrenoImagemSchema).optional(),
   principalId: z.string().optional(),
 })

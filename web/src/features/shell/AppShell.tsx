@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Terreno, TerrenoInput } from '../../types/terreno'
 import { useTerrenos } from '../../hooks/useTerrenos'
+import { useCorretoras } from '../../hooks/useCorretoras'
 import { filterTerrenos, sortTerrenos, type SortOrder } from '../../lib/terreno-filters'
 import { MapView } from '../map/MapView'
 import { MapSheet } from '../map/MapSheet'
@@ -16,14 +17,16 @@ type AppShellProps = {
 
 export function AppShell({ onLogout }: AppShellProps) {
   const { terrenos, loading, addTerreno, updateTerreno, removeTerreno } = useTerrenos()
+  const { corretoras, refresh: refreshCorretoras } = useCorretoras()
   const [query, setQuery] = useState('')
+  const [corretora, setCorretora] = useState('')
   const [sort, setSort] = useState<SortOrder>('price-asc')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Terreno | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  const searched = filterTerrenos(terrenos, query) // mapa: ordem estável (sem piscar)
+  const searched = filterTerrenos(terrenos, query, corretora) // mapa: ordem estável (sem piscar)
   const visible = sortTerrenos(searched, sort) // tabela: ordenada
   const selected = terrenos.find((terreno) => terreno.id === selectedId) ?? null
   const deleting = terrenos.find((terreno) => terreno.id === deletingId) ?? null
@@ -47,6 +50,7 @@ export function AppShell({ onLogout }: AppShellProps) {
       const created = await addTerreno(input)
       setSelectedId(created.id) // abre o detalhe do recém-criado
     }
+    void refreshCorretoras() // corretora nova digitada já aparece no autocomplete/filtro
     setFormOpen(false) // só fecha o form quando terminou de salvar
   }
 
@@ -64,8 +68,11 @@ export function AppShell({ onLogout }: AppShellProps) {
         selectedId={selectedId}
         query={query}
         sort={sort}
+        corretoras={corretoras}
+        corretora={corretora}
         onQuery={setQuery}
         onSort={setSort}
+        onCorretora={setCorretora}
         onSelect={setSelectedId}
         onAdd={openCreate}
         onLogout={onLogout}
@@ -95,8 +102,11 @@ export function AppShell({ onLogout }: AppShellProps) {
           selectedId={selectedId}
           query={query}
           sort={sort}
+          corretoras={corretoras}
+          corretora={corretora}
           onQuery={setQuery}
           onSort={setSort}
+          onCorretora={setCorretora}
           onSelect={setSelectedId}
           onAdd={openCreate}
         />
@@ -115,6 +125,7 @@ export function AppShell({ onLogout }: AppShellProps) {
         terreno={editing}
         centerLat={DEFAULT_CENTER.lat}
         centerLng={DEFAULT_CENTER.lng}
+        corretoras={corretoras}
         onClose={() => setFormOpen(false)}
         onSubmit={handleSubmit}
       />

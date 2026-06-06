@@ -39,6 +39,11 @@ export function TerrenoSheet({ terreno, open, onClose, onEdit, onDelete }: Terre
                 </p>
               )}
               <p className="mt-1 font-serif text-base text-moss">{terreno.rua}</p>
+              {terreno.corretora ? (
+                <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-taupe">
+                  {terreno.corretora}
+                </p>
+              ) : null}
             </div>
 
             <TerrenoInfo terreno={terreno} />

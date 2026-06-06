@@ -157,6 +157,15 @@ functions:
           authorizer:
             name: cognitoAuthorizer
 
+  corretorasList:
+    handler: src/functions/corretoras/list.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /corretoras
+          authorizer:
+            name: cognitoAuthorizer
+
   uploadsCreate:
     handler: src/functions/uploads/create.handler
     events:

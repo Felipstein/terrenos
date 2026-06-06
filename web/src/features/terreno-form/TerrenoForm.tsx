@@ -6,7 +6,9 @@ import { terrenoSchema } from '../../lib/terreno-validation'
 import { recalcArea, type AreaField } from '../../lib/area'
 import { TextField } from '../../components/TextField/TextField'
 import { CurrencyField } from '../../components/CurrencyField/CurrencyField'
+import { Combobox } from '../../components/Combobox/Combobox'
 import { Button } from '../../components/Button/Button'
+import type { Corretora } from '../../types/corretora'
 import { LocationPicker } from './LocationPicker'
 import { PasteMapsLink } from './PasteMapsLink'
 import { useReverseGeocode } from '../map/useReverseGeocode'
@@ -23,12 +25,14 @@ type TerrenoFormValues = {
   comprimento?: number
   link?: string
   whatsapp?: string
+  corretora?: string
 }
 
 type TerrenoFormProps = {
   initial: Terreno | null
   centerLat: number
   centerLng: number
+  corretoras: Corretora[]
   onSubmit: (input: TerrenoInput) => Promise<void> | void
   onDirtyChange?: (dirty: boolean) => void
 }
@@ -49,6 +53,7 @@ function toDefaults(initial: Terreno | null, lat: number, lng: number): Partial<
     comprimento: initial.comprimento,
     link: initial.link,
     whatsapp: initial.whatsapp,
+    corretora: initial.corretora,
   }
 }
 
@@ -56,6 +61,7 @@ export function TerrenoForm({
   initial,
   centerLat,
   centerLng,
+  corretoras,
   onSubmit,
   onDirtyChange,
 }: TerrenoFormProps) {
@@ -135,6 +141,18 @@ export function TerrenoForm({
         placeholder="Preenche sozinho pelo mapa — edite se precisar"
         error={errors.rua?.message}
         {...register('rua')}
+      />
+
+      <Combobox
+        id="corretora"
+        label="Corretora (opcional)"
+        value={watch('corretora') ?? ''}
+        options={corretoras.map((c) => ({ value: c.name, label: c.name }))}
+        onChange={(next) => setValue('corretora', next, { shouldValidate: true, shouldDirty: true })}
+        allowFreeText
+        placeholder="Digite ou escolha uma corretora"
+        emptyLabel="Nenhuma corretora ainda — digite pra cadastrar"
+        error={errors.corretora?.message}
       />
 
       <CurrencyField

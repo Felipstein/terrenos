@@ -5,6 +5,7 @@ export type SortOrder = 'price-asc' | 'price-desc' | 'area-asc' | 'area-desc'
 export type TerrenoFilters = {
   query: string
   sort: SortOrder
+  corretora: string // nome da corretora; '' = todas
 }
 
 // Ordena por preço mandando os sem-preço (a negociar) pro fim, tanto em asc
@@ -25,10 +26,16 @@ const comparators: Record<SortOrder, (a: Terreno, b: Terreno) => number> = {
 }
 
 // Só filtra (ordem original preservada) — usado no mapa, pra não reordenar os
-// pins (e não "piscar") quando muda só a ordenação da tabela.
-export function filterTerrenos(terrenos: Terreno[], query: string): Terreno[] {
+// pins (e não "piscar") quando muda só a ordenação da tabela. Filtra por endereço
+// e por corretora (nome exato; '' = todas).
+export function filterTerrenos(terrenos: Terreno[], query: string, corretora: string): Terreno[] {
   const q = query.trim().toLowerCase()
-  return q ? terrenos.filter((terreno) => terreno.rua.toLowerCase().includes(q)) : terrenos
+  if (!q && !corretora) return terrenos
+  return terrenos.filter((terreno) => {
+    if (q && !terreno.rua.toLowerCase().includes(q)) return false
+    if (corretora && terreno.corretora !== corretora) return false
+    return true
+  })
 }
 
 export function sortTerrenos(terrenos: Terreno[], sort: SortOrder): Terreno[] {
@@ -36,5 +43,5 @@ export function sortTerrenos(terrenos: Terreno[], sort: SortOrder): Terreno[] {
 }
 
 export function filterAndSort(terrenos: Terreno[], filters: TerrenoFilters): Terreno[] {
-  return sortTerrenos(filterTerrenos(terrenos, filters.query), filters.sort)
+  return sortTerrenos(filterTerrenos(terrenos, filters.query, filters.corretora), filters.sort)
 }

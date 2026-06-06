@@ -38,6 +38,11 @@ export function PriceMarker({ terreno, selected, onSelect }: PriceMarkerProps) {
             <div className="mt-0.5 whitespace-nowrap text-[11px] font-medium leading-tight text-paper/90">
               {sizeLabel}
             </div>
+            {terreno.corretora ? (
+              <div className="mx-auto mt-0.5 max-w-[120px] truncate text-[9px] font-medium uppercase leading-tight tracking-wide text-paper/75">
+                {terreno.corretora}
+              </div>
+            ) : null}
           </div>
         </div>
         <div className={cn('-mt-[3px] h-2 w-2 rotate-45 border-b border-r', tone.border, tone.bg)} />

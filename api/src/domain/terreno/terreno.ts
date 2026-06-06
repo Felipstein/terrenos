@@ -16,6 +16,7 @@ export type Terreno = {
   comprimento?: number
   link?: string
   whatsapp?: string
+  corretora?: string
   imagens?: TerrenoImage[]
   principalId?: string
   createdAt: string

@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import type { Terreno, TerrenoInput } from '../../types/terreno'
+import type { Corretora } from '../../types/corretora'
 import {
   BottomSheetBackdrop,
   BottomSheetPanel,
@@ -14,6 +15,7 @@ type TerrenoFormSheetProps = {
   terreno: Terreno | null
   centerLat: number
   centerLng: number
+  corretoras: Corretora[]
   onClose: () => void
   onSubmit: (input: TerrenoInput, id: string | null) => Promise<void>
 }
@@ -29,6 +31,7 @@ export function TerrenoFormSheet({
   terreno,
   centerLat,
   centerLng,
+  corretoras,
   onClose,
   onSubmit,
 }: TerrenoFormSheetProps) {
@@ -71,6 +74,7 @@ export function TerrenoFormSheet({
                   initial={terreno}
                   centerLat={centerLat}
                   centerLng={centerLng}
+                  corretoras={corretoras}
                   onDirtyChange={(dirty) => {
                     dirtyRef.current = dirty
                   }}

@@ -215,6 +215,19 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }
 
+  /corretoras:
+    get:
+      operationId: listCorretoras
+      summary: Lista as corretoras usadas na conta (pra autocomplete e filtro)
+      responses:
+        "200":
+          description: Lista de corretoras
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Corretora" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -274,6 +287,7 @@ components:
         comprimento: { type: number, description: metros, example: 25 }
         link: { type: string, format: uri }
         whatsapp: { type: string, description: "Telefone/WhatsApp do contato (opcional). Texto livre — DDI 55 assumido se ausente.", example: "(45) 99999-0000" }
+        corretora: { type: string, description: "Nome da corretora (opcional, texto livre). O backend deduplica por slug e guarda/retorna o nome canônico do 1º cadastro.", example: "Imobiliária Silva" }
         imagens:
           type: array
           items: { $ref: "#/components/schemas/TerrenoImagem" }
@@ -288,6 +302,13 @@ components:
           required: [id]
           properties:
             id: { type: string }
+
+    Corretora:
+      type: object
+      required: [slug, name]
+      properties:
+        slug: { type: string, description: chave de dedup derivada do nome, example: imobiliaria-silva }
+        name: { type: string, example: "Imobiliária Silva" }
 
     LoginInput:
       type: object
