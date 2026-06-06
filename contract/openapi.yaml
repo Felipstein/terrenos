@@ -273,6 +273,7 @@ components:
         largura: { type: number, description: metros, example: 10 }
         comprimento: { type: number, description: metros, example: 25 }
         link: { type: string, format: uri }
+        whatsapp: { type: string, description: "Telefone/WhatsApp do contato (opcional). Texto livre — DDI 55 assumido se ausente.", example: "(45) 99999-0000" }
         imagens:
           type: array
           items: { $ref: "#/components/schemas/TerrenoImagem" }

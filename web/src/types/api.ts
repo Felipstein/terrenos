@@ -214,6 +214,11 @@ export interface components {
             comprimento?: number;
             /** Format: uri */
             link?: string;
+            /**
+             * @description Telefone/WhatsApp do contato (opcional). Texto livre — DDI 55 assumido se ausente.
+             * @example (45) 99999-0000
+             */
+            whatsapp?: string;
             imagens?: components["schemas"]["TerrenoImagem"][];
             /** @description id da imagem principal (aparece no pin/tabela/detalhe) */
             principalId?: string;

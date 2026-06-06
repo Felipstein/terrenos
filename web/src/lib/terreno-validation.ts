@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { isValidWhatsapp } from './whatsapp'
 
 // Schema único de validação do terreno (fonte da verdade do form).
 // Usado com @hookform/resolvers (zodResolver). Ver skill `forms`.
@@ -39,6 +40,10 @@ export const terrenoSchema = z.object({
       .string()
       .refine((s) => /^https?:\/\/.+/.test(s), 'Link inválido')
       .optional(),
+  ),
+  whatsapp: z.preprocess(
+    (v) => (typeof v === 'string' && v.trim() === '' ? undefined : v),
+    z.string().refine(isValidWhatsapp, 'WhatsApp inválido').optional(),
   ),
   imagens: z.array(terrenoImagemSchema).optional(),
   principalId: z.string().optional(),

@@ -9,6 +9,7 @@ import { formatPrice, PRICE_TBD } from '../../lib/format'
 import { TerrenoGallery } from './TerrenoGallery'
 import { TerrenoInfo } from './TerrenoInfo'
 import { RouteButton } from './RouteButton'
+import { WhatsappButton } from './WhatsappButton'
 
 type TerrenoSheetProps = {
   terreno: Terreno | null
@@ -44,6 +45,7 @@ export function TerrenoSheet({ terreno, open, onClose, onEdit, onDelete }: Terre
 
             <div className="flex flex-col gap-2 px-5">
               <RouteButton lat={terreno.lat} lng={terreno.lng} />
+              {terreno.whatsapp ? <WhatsappButton number={terreno.whatsapp} /> : null}
               <div className="flex gap-2">
                 <Button
                   variant="ghost"

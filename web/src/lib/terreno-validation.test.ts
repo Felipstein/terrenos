@@ -35,4 +35,14 @@ describe('terrenoSchema', () => {
   it('rejeita link inválido', () => {
     expect(terrenoSchema.safeParse({ ...base, link: 'nao-e-url' }).success).toBe(false)
   })
+
+  it('aceita whatsapp opcional (vazio ou número válido)', () => {
+    expect(terrenoSchema.safeParse(base).success).toBe(true)
+    expect(terrenoSchema.safeParse({ ...base, whatsapp: '' }).success).toBe(true)
+    expect(terrenoSchema.safeParse({ ...base, whatsapp: '(45) 99999-0000' }).success).toBe(true)
+  })
+
+  it('rejeita whatsapp inválido', () => {
+    expect(terrenoSchema.safeParse({ ...base, whatsapp: '123' }).success).toBe(false)
+  })
 })

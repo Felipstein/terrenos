@@ -26,6 +26,17 @@ describe('terrenoInputSchema', () => {
     expect(terrenoInputSchema.safeParse({ ...valid, link: 'não-é-url' }).success).toBe(false)
   })
 
+  it('aceita preço ausente (a negociar)', () => {
+    const { preco, ...semPreco } = valid
+    void preco
+    expect(terrenoInputSchema.safeParse(semPreco).success).toBe(true)
+  })
+
+  it('aceita whatsapp opcional', () => {
+    expect(terrenoInputSchema.safeParse({ ...valid, whatsapp: '5545999990000' }).success).toBe(true)
+    expect(terrenoInputSchema.safeParse(valid).success).toBe(true)
+  })
+
   it('aceita medidas e imagens opcionais', () => {
     const result = terrenoInputSchema.safeParse({
       ...valid,

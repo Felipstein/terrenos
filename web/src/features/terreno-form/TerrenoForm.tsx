@@ -22,6 +22,7 @@ type TerrenoFormValues = {
   largura?: number
   comprimento?: number
   link?: string
+  whatsapp?: string
 }
 
 type TerrenoFormProps = {
@@ -47,6 +48,7 @@ function toDefaults(initial: Terreno | null, lat: number, lng: number): Partial<
     largura: initial.largura,
     comprimento: initial.comprimento,
     link: initial.link,
+    whatsapp: initial.whatsapp,
   }
 }
 
@@ -177,6 +179,15 @@ export function TerrenoForm({
         placeholder="https://..."
         error={errors.link?.message}
         {...register('link')}
+      />
+
+      <TextField
+        id="whatsapp"
+        label="WhatsApp do contato (opcional)"
+        placeholder="(45) 99999-0000"
+        inputMode="tel"
+        error={errors.whatsapp?.message}
+        {...register('whatsapp')}
       />
 
       <ImageUploader

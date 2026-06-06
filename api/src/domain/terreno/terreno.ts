@@ -8,13 +8,14 @@ import { ValidationError } from '../errors'
 export type Terreno = {
   id: string
   rua: string
-  preco: number
+  preco?: number
   lat: number
   lng: number
   areaTotal: number
   largura?: number
   comprimento?: number
   link?: string
+  whatsapp?: string
   imagens?: TerrenoImage[]
   principalId?: string
   createdAt: string

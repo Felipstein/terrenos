@@ -12,13 +12,14 @@ const terrenoImageSchema = z.object({
  */
 export const terrenoInputSchema = z.object({
   rua: z.string().check(z.minLength(1, 'Informe a rua')),
-  preco: z.number().check(z.nonnegative('Preço inválido')),
+  preco: z.optional(z.number().check(z.positive('Preço inválido'))),
   lat: z.number(),
   lng: z.number(),
   areaTotal: z.number().check(z.positive('Área inválida')),
   largura: z.optional(z.number().check(z.positive())),
   comprimento: z.optional(z.number().check(z.positive())),
   link: z.optional(z.url('Link inválido')),
+  whatsapp: z.optional(z.string().check(z.minLength(1))),
   imagens: z.optional(z.array(terrenoImageSchema)),
   principalId: z.optional(z.string()),
 })

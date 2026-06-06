@@ -29,6 +29,7 @@ Campos canônicos (independe de onde os dados ficam guardados).
 | `largura` | number | não | metros |
 | `comprimento` | number | não | metros |
 | `link` | string | não | anúncio do corretor |
+| `whatsapp` | string | não | telefone/WhatsApp do contato; texto livre. Deep-link `wa.me` via `lib/whatsapp.ts` (`buildWhatsappUrl`, prefixa DDI 55 se faltar). Botão "Chamar no WhatsApp" no detalhe quando preenchido |
 | `imagens` | `TerrenoImagem[]` | não | `{ id, url }` — opcional |
 | `principalId` | string | não | id da imagem principal (pin, hover da tabela, detalhe) |
 
