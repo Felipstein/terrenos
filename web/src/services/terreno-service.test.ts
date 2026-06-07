@@ -12,6 +12,7 @@ function jsonResponse(data: unknown, status = 200): Response {
 
 const input = {
   rua: 'Rua X, 1',
+  isCorner: false,
   preco: 100000,
   lat: -22.9,
   lng: -47.0,

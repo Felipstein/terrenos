@@ -12,6 +12,7 @@ const terrenoImageSchema = z.object({
  */
 export const terrenoInputSchema = z.object({
   rua: z.string().check(z.minLength(1, 'Informe a rua')),
+  isCorner: z.boolean(),
   preco: z.optional(z.number().check(z.positive('Preço inválido'))),
   lat: z.number(),
   lng: z.number(),

@@ -2,7 +2,12 @@ import { useState } from 'react'
 import type { Terreno, TerrenoInput } from '../../types/terreno'
 import { useTerrenos } from '../../hooks/useTerrenos'
 import { useCorretoras } from '../../hooks/useCorretoras'
-import { filterTerrenos, sortTerrenos, type SortOrder } from '../../lib/terreno-filters'
+import {
+  filterTerrenos,
+  sortTerrenos,
+  type SortOrder,
+  type CornerFilter,
+} from '../../lib/terreno-filters'
 import { MapView } from '../map/MapView'
 import { MapSheet } from '../map/MapSheet'
 import { DEFAULT_CENTER } from '../map/config'
@@ -20,6 +25,7 @@ export function AppShell({ onLogout }: AppShellProps) {
   const { corretoras, refresh: refreshCorretoras } = useCorretoras()
   const [query, setQuery] = useState('')
   const [corretora, setCorretora] = useState('')
+  const [corner, setCorner] = useState<CornerFilter>('all')
   const [sort, setSort] = useState<SortOrder>('price-asc')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [formOpen, setFormOpen] = useState(false)
@@ -27,7 +33,7 @@ export function AppShell({ onLogout }: AppShellProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
 
-  const searched = filterTerrenos(terrenos, query, corretora) // mapa: ordem estável (sem piscar)
+  const searched = filterTerrenos(terrenos, query, corretora, corner) // mapa: ordem estável (sem piscar)
   const visible = sortTerrenos(searched, sort) // tabela: ordenada
   const selected = terrenos.find((terreno) => terreno.id === selectedId) ?? null
   const deleting = terrenos.find((terreno) => terreno.id === deletingId) ?? null
@@ -76,9 +82,11 @@ export function AppShell({ onLogout }: AppShellProps) {
         sort={sort}
         corretoras={corretoras}
         corretora={corretora}
+        corner={corner}
         onQuery={setQuery}
         onSort={setSort}
         onCorretora={setCorretora}
+        onCorner={setCorner}
         onSelect={setSelectedId}
         onAdd={openCreate}
         onLogout={onLogout}
@@ -110,9 +118,11 @@ export function AppShell({ onLogout }: AppShellProps) {
           sort={sort}
           corretoras={corretoras}
           corretora={corretora}
+          corner={corner}
           onQuery={setQuery}
           onSort={setSort}
           onCorretora={setCorretora}
+          onCorner={setCorner}
           onSelect={setSelectedId}
           onAdd={openCreate}
         />

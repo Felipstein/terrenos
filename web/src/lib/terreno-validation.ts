@@ -28,6 +28,9 @@ export type TerrenoImagem = z.infer<typeof terrenoImagemSchema>
 
 export const terrenoSchema = z.object({
   rua: z.string().trim().min(1, 'Informe a rua'),
+  // Esquina: obrigatório. Itens antigos lidos sem o campo caem em false
+  // (coerção). O form parte sempre de um valor definido (toggle sim/não).
+  isCorner: z.coerce.boolean().default(false),
   preco: optionalPositive,
   lat: z.coerce.number().refine(Number.isFinite, 'Selecione o local no mapa'),
   lng: z.coerce.number().refine(Number.isFinite, 'Selecione o local no mapa'),

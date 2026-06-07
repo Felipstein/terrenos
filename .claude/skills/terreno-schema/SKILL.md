@@ -22,6 +22,7 @@ Campos canônicos (independe de onde os dados ficam guardados).
 |-------|------|-------------|-------|
 | `id` | string | sim | identificador único |
 | `rua` | string | sim | endereço; autopreenchido via geocoding, **editável** |
+| `isCorner` | boolean | sim | terreno de esquina. **Obrigatório**; default **false** no cadastro. Itens antigos sem o campo são coagidos pra `false` na leitura do backend (`toEntity` em `terreno-repository.dynamo.ts`). Toggle (`Switch`) sim/não no form; exibido no detalhe; filtro da lista all/corner/non-corner (`CornerFilter` em `lib/terreno-filters.ts`) |
 | `preco` | number | não | em BRL; **opcional** — ausente quando ainda está a negociar |
 | `lat` | number | sim | latitude do pin |
 | `lng` | number | sim | longitude do pin |

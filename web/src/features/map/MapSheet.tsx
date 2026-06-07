@@ -1,6 +1,6 @@
 import type { Terreno } from '../../types/terreno'
 import type { Corretora } from '../../types/corretora'
-import type { SortOrder } from '../../lib/terreno-filters'
+import type { SortOrder, CornerFilter } from '../../lib/terreno-filters'
 import { DraggableSheet } from '../../components/DraggableSheet/DraggableSheet'
 import { TerrenoSearch } from '../list/TerrenoSearch'
 import { TerrenoTable } from '../list/TerrenoTable'
@@ -13,9 +13,11 @@ type MapSheetProps = {
   sort: SortOrder
   corretoras: Corretora[]
   corretora: string
+  corner: CornerFilter
   onQuery: (value: string) => void
   onSort: (sort: SortOrder) => void
   onCorretora: (value: string) => void
+  onCorner: (value: CornerFilter) => void
   onSelect: (id: string) => void
   onAdd: () => void
 }
@@ -27,9 +29,11 @@ export function MapSheet({
   sort,
   corretoras,
   corretora,
+  corner,
   onQuery,
   onSort,
   onCorretora,
+  onCorner,
   onSelect,
   onAdd,
 }: MapSheetProps) {
@@ -42,8 +46,10 @@ export function MapSheet({
           count={terrenos.length}
           corretoras={corretoras}
           corretora={corretora}
+          corner={corner}
           onQuery={onQuery}
           onCorretora={onCorretora}
+          onCorner={onCorner}
         />
       }
       accessory={<AddTerrenoButton onClick={onAdd} />}

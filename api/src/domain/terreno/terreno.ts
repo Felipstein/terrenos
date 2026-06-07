@@ -8,6 +8,8 @@ import { ValidationError } from '../errors'
 export type Terreno = {
   id: string
   rua: string
+  /** Se o terreno é de esquina. Obrigatório (itens antigos coagidos pra false na leitura). */
+  isCorner: boolean
   preco?: number
   lat: number
   lng: number
