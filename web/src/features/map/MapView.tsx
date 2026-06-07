@@ -11,6 +11,8 @@ import { AddTargetCrosshair } from './AddTargetCrosshair'
 import { AddModeControls } from './AddModeControls'
 import { DEFAULT_CENTER, MAP_ID, hasGoogleMaps } from './config'
 
+function noop() {}
+
 type MapViewProps = {
   terrenos: Terreno[]
   loading: boolean
@@ -61,7 +63,7 @@ export function MapView({
             terreno={terreno}
             selected={terreno.id === selectedId}
             hovered={terreno.id === hoveredId}
-            onSelect={addMode ? () => {} : onSelect}
+            onSelect={addMode ? noop : onSelect}
             onHover={onHover}
           />
         ))}

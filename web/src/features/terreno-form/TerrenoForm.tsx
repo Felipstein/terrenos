@@ -124,9 +124,13 @@ export function TerrenoForm({
   }
 
   // Terreno novo aberto a partir do "Criar aqui" (mira no centro do mapa): a
-  // coordenada já vem pré-preenchida, então buscamos o endereço uma vez pra
-  // autopreencher a rua. Não marca dirty: é só o autofill inicial, não uma
-  // edição do usuário.
+  // coordenada já vem pré-preenchida, então buscamos o endereço pra autopreencher
+  // a rua. `reverseGeocode` retorna null enquanto a lib 'geocoding' carrega; como
+  // ele é estável via useCallback([geocodingLib]) e muda de null→geocoder quando
+  // fica pronta, mantê-lo nas deps faz o efeito re-tentar na primeira abertura
+  // (e em page load frio). Guardas: não roda em edição (initial != null), não
+  // sobrescreve o que o usuário já digitou e não marca dirty (autofill inicial,
+  // não edição do usuário).
   useEffect(() => {
     if (initial) return
     let active = true
@@ -138,9 +142,7 @@ export function TerrenoForm({
     return () => {
       active = false
     }
-    // só na montagem do form novo (coordenada inicial vem do modo de adição)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [reverseGeocode, initial, centerLat, centerLng, getValues, setValue])
 
   const areaRegisters = {
     total: register('areaTotal', { valueAsNumber: true }),
