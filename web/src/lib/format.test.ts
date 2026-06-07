@@ -69,6 +69,17 @@ describe('formatPricePerSqm / displayPricePerSqm', () => {
     expect(formatPricePerSqm(333.33)).toBe('R$ 333/m²')
   })
 
+  it('mantém valor cheio até 9.999 (precisão no caso comum)', () => {
+    expect(formatPricePerSqm(3000)).toBe('R$ 3.000/m²')
+    expect(formatPricePerSqm(9999)).toBe('R$ 9.999/m²')
+  })
+
+  it('usa sufixo K a partir de 10 mil pra não estourar a coluna no mobile', () => {
+    expect(formatPricePerSqm(10_000)).toBe('R$ 10K/m²')
+    expect(formatPricePerSqm(500_000)).toBe('R$ 500K/m²')
+    expect(formatPricePerSqm(12_500)).toBe('R$ 12,5K/m²')
+  })
+
   it('usa "—" quando não há valor', () => {
     expect(displayPricePerSqm(undefined)).toBe('—')
     expect(displayPricePerSqm(200)).toBe('R$ 200/m²')

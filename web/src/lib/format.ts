@@ -56,9 +56,13 @@ export function pricePerSquareMeter(
   return preco / areaTotal
 }
 
-// Formato compacto pra caber bem no mobile: "R$ 333/m²" (arredonda os reais).
+// Formato compacto pra caber bem no mobile (coluna estreita, sem scroll horizontal):
+// valores normais arredondam os reais ("R$ 333/m²"); a partir de 10 mil usa sufixo
+// "K" pra não estourar a coluna ("R$ 500K/m²" em vez de "R$ 500.000/m²").
 export function formatPricePerSqm(value: number): string {
-  return `${formatPrice(Math.round(value))}/m²`
+  const rounded = Math.round(value)
+  if (rounded >= 10_000) return `R$ ${compact(rounded / 1_000)}K/m²`
+  return `${formatPrice(rounded)}/m²`
 }
 
 export function displayPricePerSqm(value: number | undefined): string {

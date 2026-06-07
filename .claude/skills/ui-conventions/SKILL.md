@@ -26,7 +26,7 @@ App **mobile-first** com layout responsivo. Estética **cartográfica**: papel c
 ## Tabela de terrenos
 - Colunas: **Endereço** (trunca) · **Área** (m², com as dimensões L×C em linha secundária menor abaixo, quando houver) · **Preço** (compacto, `displayPriceShort`) · **R$/m²** (preço por m², derivado — última coluna).
 - Headers **Área**, **Preço** e **R$/m²** são botões que ordenam (toggle asc/desc, seta em `clay` quando ativo). Ordenar por R$/m² mostra custo-benefício (mais barato → mais caro por m²). Ver `TerrenoTable`.
-- **Mobile-first:** 4 colunas no máximo, paddings/fontes compactos, **sem scroll horizontal**. Dimensão (L×C) não é coluna própria — vive sob a Área pra não estourar a largura.
+- **Mobile-first:** 4 colunas no máximo, paddings/fontes compactos, **sem scroll horizontal** (validar a 360px: `table.scrollWidth <= clientWidth`). Dimensão (L×C) não é coluna própria — vive sob a Área pra não estourar a largura. Larguras fixas das colunas densas em `<colgroup>`: Área `64px`, Preço `88px`, R$/m² `96px` (Endereço é flex). Células densas usam `px-1.5`; o R$/m² compacta valores grandes (sufixo `K`) pra não estourar nem cortar o `²` — ver `formatPricePerSqm`.
 - Pin do mapa = pill creme com preço em mono + ponta; `clay` quando selecionado; a linha da tabela destaca o selecionado.
 
 ## Componentes-chave

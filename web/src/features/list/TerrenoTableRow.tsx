@@ -56,7 +56,7 @@ export function TerrenoTableRow({ terreno, selected, onSelect }: TerrenoTableRow
       </td>
       <td
         className={cn(
-          'whitespace-nowrap px-3 py-3 text-right font-mono text-xs tabular-nums',
+          'whitespace-nowrap px-1.5 py-3 text-right font-mono text-xs tabular-nums',
           perSqm === undefined ? 'text-taupe/70' : 'text-taupe',
         )}
       >

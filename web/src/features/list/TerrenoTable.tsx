@@ -37,9 +37,9 @@ export function TerrenoTable({ terrenos, selectedId, sort, onSort, onSelect }: T
     <table className="w-full table-fixed border-collapse">
       <colgroup>
         <col />
-        <col className="w-[68px]" />
+        <col className="w-[64px]" />
         <col className="w-[88px]" />
-        <col className="w-[84px]" />
+        <col className="w-[96px]" />
       </colgroup>
       <thead className="sticky top-0 z-10 bg-surface">
         <tr className="border-b border-line text-[10px] uppercase tracking-[0.06em] text-taupe">
@@ -62,7 +62,7 @@ export function TerrenoTable({ terrenos, selectedId, sort, onSort, onSelect }: T
               Preço <span className="font-mono text-[11px]">{arrow(priceActive, sort === 'price-asc')}</span>
             </button>
           </th>
-          <th className="px-3 py-2.5 text-right font-semibold">
+          <th className="px-1.5 py-2.5 text-right font-semibold">
             <button
               type="button"
               onClick={() => toggle('pricePerSqm')}
