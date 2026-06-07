@@ -1,6 +1,6 @@
 import { AdvancedMarker } from '@vis.gl/react-google-maps'
 import type { Terreno } from '../../types/terreno'
-import { formatArea, displayPriceShort } from '../../lib/format'
+import { displayArea, displayPriceShort } from '../../lib/format'
 import { imagemPrincipal } from '../../lib/imagem'
 import { cn } from '../../lib/cn'
 
@@ -14,8 +14,8 @@ export function PriceMarker({ terreno, selected, onSelect }: PriceMarkerProps) {
   const photo = imagemPrincipal(terreno)
   const sizeLabel =
     terreno.largura && terreno.comprimento
-      ? `${formatArea(terreno.areaTotal)} · ${terreno.largura}×${terreno.comprimento}`
-      : formatArea(terreno.areaTotal)
+      ? `${displayArea(terreno.areaTotal)} · ${terreno.largura}×${terreno.comprimento}`
+      : displayArea(terreno.areaTotal)
   // Selecionado: moss. Com preço: clay. Sem preço (a negociar): taupe.
   const tone = selected
     ? { border: 'border-moss-700', bg: 'bg-moss' }

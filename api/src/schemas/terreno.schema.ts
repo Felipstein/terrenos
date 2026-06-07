@@ -18,7 +18,7 @@ export const terrenoInputSchema = z.object({
   preco: z.optional(z.number().check(z.positive('Preço inválido'))),
   lat: z.number(),
   lng: z.number(),
-  areaTotal: z.number().check(z.positive('Área inválida')),
+  areaTotal: z.optional(z.number().check(z.positive('Área inválida'))),
   largura: z.optional(z.number().check(z.positive())),
   comprimento: z.optional(z.number().check(z.positive())),
   link: z.optional(z.url('Link inválido')),

@@ -6,7 +6,7 @@ function terreno(
   id: string,
   rua: string,
   preco: number | undefined,
-  areaTotal = 200,
+  areaTotal: number | undefined = 200,
   corretora?: string,
   isCorner = false,
 ): Terreno {
@@ -99,6 +99,39 @@ describe('filterAndSort', () => {
       filterAndSort(semValor, {
         query: '',
         sort: 'pricePerSqm-desc',
+        corretora: '',
+        corner: 'all',
+      }).map((t) => t.id),
+    ).toEqual(['a', 'b', 'x'])
+  })
+
+  it('manda terrenos sem área pro fim (asc e desc)', () => {
+    // `undefined` explícito acionaria o default do factory; monta o sem-área na mão.
+    const semArea: Terreno = {
+      id: 'x',
+      rua: 'Rua X',
+      preco: 100000,
+      lat: -22.9,
+      lng: -47.0,
+      isCorner: false,
+    }
+    const comAreaVazia: Terreno[] = [
+      terreno('a', 'Rua A', 100000, 500),
+      semArea,
+      terreno('b', 'Rua B', 100000, 300),
+    ]
+    expect(
+      filterAndSort(comAreaVazia, {
+        query: '',
+        sort: 'area-asc',
+        corretora: '',
+        corner: 'all',
+      }).map((t) => t.id),
+    ).toEqual(['b', 'a', 'x'])
+    expect(
+      filterAndSort(comAreaVazia, {
+        query: '',
+        sort: 'area-desc',
         corretora: '',
         corner: 'all',
       }).map((t) => t.id),
