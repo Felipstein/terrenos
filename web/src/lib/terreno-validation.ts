@@ -52,6 +52,12 @@ export const terrenoSchema = z.object({
     (v) => (typeof v === 'string' && v.trim() === '' ? undefined : v),
     z.string().optional(),
   ),
+  // Telefone da CORRETORA (não do contato/whatsapp do anúncio). Não fica gravado
+  // no terreno: o backend faz upsert no telefone da corretora ao salvar.
+  corretoraTelefone: z.preprocess(
+    (v) => (typeof v === 'string' && v.trim() === '' ? undefined : v),
+    z.string().optional(),
+  ),
   imagens: z.array(terrenoImagemSchema).optional(),
   principalId: z.string().optional(),
 })

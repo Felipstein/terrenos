@@ -228,6 +228,35 @@ paths:
                 type: array
                 items: { $ref: "#/components/schemas/Corretora" }
 
+  /corretoras/{slug}:
+    put:
+      operationId: updateCorretora
+      summary: >
+        Atualiza uma corretora existente (nome e/ou telefone). Útil pra
+        completar dados de corretoras antigas ou auto-criadas ao salvar um
+        terreno. Identificada pelo `slug` (chave de dedup).
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CorretoraUpdateInput" }
+      responses:
+        "200":
+          description: Corretora atualizada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Corretora" }
+        "404":
+          description: Corretora não encontrada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -289,6 +318,7 @@ components:
         link: { type: string, format: uri }
         whatsapp: { type: string, description: "Telefone/WhatsApp do contato (opcional). Texto livre — DDI 55 assumido se ausente.", example: "(45) 99999-0000" }
         corretora: { type: string, description: "Nome da corretora (opcional, texto livre). O backend deduplica por slug e guarda/retorna o nome canônico do 1º cadastro.", example: "Imobiliária Silva" }
+        corretoraTelefone: { type: string, description: "Telefone da CORRETORA (opcional, texto livre). Não fica gravado no terreno: o backend faz upsert no telefone da corretora (por slug) quando o terreno é salvo com nome de corretora. Distinto de `whatsapp`, que é o contato do anúncio.", example: "(45) 3333-0000" }
         imagens:
           type: array
           items: { $ref: "#/components/schemas/TerrenoImagem" }
@@ -310,6 +340,14 @@ components:
       properties:
         slug: { type: string, description: chave de dedup derivada do nome, example: imobiliaria-silva }
         name: { type: string, example: "Imobiliária Silva" }
+        phone: { type: string, description: "Telefone da corretora (opcional, texto livre). Autopreenchido no form de terreno ao escolher a corretora; editável.", example: "(45) 3333-0000" }
+
+    CorretoraUpdateInput:
+      type: object
+      description: Campos editáveis de uma corretora. Todos opcionais (atualização parcial).
+      properties:
+        name: { type: string, example: "Imobiliária Silva" }
+        phone: { type: string, description: "Telefone da corretora. String vazia limpa o telefone.", example: "(45) 3333-0000" }
 
     LoginInput:
       type: object

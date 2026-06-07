@@ -11,8 +11,17 @@ export class CreateTerreno {
     private readonly corretoras: CorretoraRepository,
   ) {}
 
-  async execute(accountId: string, input: TerrenoInput): Promise<Terreno> {
-    const corretora = await resolveCorretoraName(this.corretoras, accountId, input.corretora)
+  async execute(
+    accountId: string,
+    input: TerrenoInput,
+    corretoraTelefone?: string,
+  ): Promise<Terreno> {
+    const corretora = await resolveCorretoraName(
+      this.corretoras,
+      accountId,
+      input.corretora,
+      corretoraTelefone,
+    )
     const terreno = makeTerreno(
       { ...input, corretora },
       { id: randomUUID(), now: new Date().toISOString() },

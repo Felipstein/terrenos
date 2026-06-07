@@ -166,6 +166,15 @@ functions:
           authorizer:
             name: cognitoAuthorizer
 
+  corretorasUpdate:
+    handler: src/functions/corretoras/update.handler
+    events:
+      - httpApi:
+          method: PUT
+          path: /corretoras/{slug}
+          authorizer:
+            name: cognitoAuthorizer
+
   uploadsCreate:
     handler: src/functions/uploads/create.handler
     events:

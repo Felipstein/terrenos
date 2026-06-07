@@ -20,6 +20,7 @@ type SidePanelProps = {
   onCorner: (value: CornerFilter) => void
   onSelect: (id: string) => void
   onAdd: () => void
+  onManageCorretoras: () => void
   onLogout: () => void
 }
 
@@ -38,6 +39,7 @@ export function SidePanel({
   onCorner,
   onSelect,
   onAdd,
+  onManageCorretoras,
   onLogout,
 }: SidePanelProps) {
   return (
@@ -78,7 +80,14 @@ export function SidePanel({
         />
       </div>
 
-      <footer className="border-t border-line px-4 py-2.5">
+      <footer className="flex items-center justify-between border-t border-line px-4 py-2.5">
+        <button
+          type="button"
+          onClick={onManageCorretoras}
+          className="font-mono text-[11px] uppercase tracking-[0.08em] text-taupe transition-colors hover:text-moss"
+        >
+          Corretoras
+        </button>
         <button
           type="button"
           onClick={onLogout}

@@ -14,6 +14,7 @@ import { DEFAULT_CENTER } from '../map/config'
 import { SidePanel } from './SidePanel'
 import { TerrenoSheet } from '../terreno-detail/TerrenoSheet'
 import { TerrenoFormSheet } from '../terreno-form/TerrenoFormSheet'
+import { CorretorasSheet } from '../corretoras/CorretorasSheet'
 import { AlertDialog } from '../../components/AlertDialog/AlertDialog'
 
 type AppShellProps = {
@@ -22,13 +23,14 @@ type AppShellProps = {
 
 export function AppShell({ onLogout }: AppShellProps) {
   const { terrenos, loading, addTerreno, updateTerreno, removeTerreno } = useTerrenos()
-  const { corretoras, refresh: refreshCorretoras } = useCorretoras()
+  const { corretoras, refresh: refreshCorretoras, update: updateCorretora } = useCorretoras()
   const [query, setQuery] = useState('')
   const [corretora, setCorretora] = useState('')
   const [corner, setCorner] = useState<CornerFilter>('all')
   const [sort, setSort] = useState<SortOrder>('price-asc')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [formOpen, setFormOpen] = useState(false)
+  const [corretorasOpen, setCorretorasOpen] = useState(false)
   const [editing, setEditing] = useState<Terreno | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
@@ -89,6 +91,7 @@ export function AppShell({ onLogout }: AppShellProps) {
         onCorner={setCorner}
         onSelect={setSelectedId}
         onAdd={openCreate}
+        onManageCorretoras={() => setCorretorasOpen(true)}
         onLogout={onLogout}
       />
 
@@ -101,13 +104,22 @@ export function AppShell({ onLogout }: AppShellProps) {
           focus={focus}
         />
 
-        <button
-          type="button"
-          onClick={onLogout}
-          className="absolute right-4 top-4 z-[1000] rounded-sm bg-surface/90 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wide text-taupe shadow-sm ring-1 ring-line backdrop-blur active:bg-paper md:hidden"
-        >
-          Sair
-        </button>
+        <div className="absolute right-4 top-4 z-[1000] flex gap-2 md:hidden">
+          <button
+            type="button"
+            onClick={() => setCorretorasOpen(true)}
+            className="rounded-sm bg-surface/90 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wide text-taupe shadow-sm ring-1 ring-line backdrop-blur active:bg-paper"
+          >
+            Corretoras
+          </button>
+          <button
+            type="button"
+            onClick={onLogout}
+            className="rounded-sm bg-surface/90 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wide text-taupe shadow-sm ring-1 ring-line backdrop-blur active:bg-paper"
+          >
+            Sair
+          </button>
+        </div>
       </div>
 
       <div className="md:hidden">
@@ -144,6 +156,13 @@ export function AppShell({ onLogout }: AppShellProps) {
         corretoras={corretoras}
         onClose={() => setFormOpen(false)}
         onSubmit={handleSubmit}
+      />
+
+      <CorretorasSheet
+        open={corretorasOpen}
+        corretoras={corretoras}
+        onClose={() => setCorretorasOpen(false)}
+        onSave={updateCorretora}
       />
 
       <AlertDialog

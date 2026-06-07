@@ -19,7 +19,7 @@ const useCase = new UpdateTerreno(
 export const handler = makeHandler(async (event: APIGatewayProxyEventV2WithJWTAuthorizer) => {
   const accountId = getAccountId(event)
   const id = requirePathParam(event, 'id')
-  const input = parseBody(event, terrenoInputSchema)
-  const terreno = await useCase.execute(accountId, id, input)
+  const { corretoraTelefone, ...input } = parseBody(event, terrenoInputSchema)
+  const terreno = await useCase.execute(accountId, id, input, corretoraTelefone)
   return ok(terreno)
 })

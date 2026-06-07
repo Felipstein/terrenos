@@ -28,6 +28,7 @@ type TerrenoFormValues = {
   link?: string
   whatsapp?: string
   corretora?: string
+  corretoraTelefone?: string
 }
 
 type TerrenoFormProps = {
@@ -43,7 +44,17 @@ function numU(value: number | undefined): number | undefined {
   return typeof value === 'number' && !Number.isNaN(value) ? value : undefined
 }
 
-function toDefaults(initial: Terreno | null, lat: number, lng: number): Partial<TerrenoFormValues> {
+function corretoraPhone(corretoras: Corretora[], name: string | undefined): string | undefined {
+  if (!name) return undefined
+  return corretoras.find((c) => c.name === name)?.phone
+}
+
+function toDefaults(
+  initial: Terreno | null,
+  lat: number,
+  lng: number,
+  corretoras: Corretora[],
+): Partial<TerrenoFormValues> {
   if (!initial) return { lat, lng, isCorner: false }
   return {
     rua: initial.rua,
@@ -57,6 +68,8 @@ function toDefaults(initial: Terreno | null, lat: number, lng: number): Partial<
     link: initial.link,
     whatsapp: initial.whatsapp,
     corretora: initial.corretora,
+    // Telefone da corretora vem da entidade Corretora (não do terreno).
+    corretoraTelefone: corretoraPhone(corretoras, initial.corretora),
   }
 }
 
@@ -78,7 +91,7 @@ export function TerrenoForm({
     formState: { errors, isSubmitting, dirtyFields },
   } = useForm<TerrenoFormValues>({
     resolver: zodResolver(terrenoSchema) as Resolver<TerrenoFormValues>,
-    defaultValues: toDefaults(initial, centerLat, centerLng),
+    defaultValues: toDefaults(initial, centerLat, centerLng, corretoras),
   })
 
   const lat = watch('lat')
@@ -94,6 +107,17 @@ export function TerrenoForm({
   useEffect(() => {
     onDirtyChange?.(dirty)
   }, [dirty, onDirtyChange])
+
+  // Ao escolher/digitar a corretora: grava o nome e, quando o nome bate com uma
+  // corretora conhecida que tem telefone, autopreenche o telefone — sempre
+  // editável (o usuário pode sobrescrever). Não apaga o que ele já digitou.
+  function handleCorretoraChange(next: string) {
+    setValue('corretora', next, { shouldValidate: true, shouldDirty: true })
+    const phone = corretoraPhone(corretoras, next)
+    if (phone !== undefined) {
+      setValue('corretoraTelefone', phone, { shouldValidate: true, shouldDirty: true })
+    }
+  }
 
   async function applyPoint(nextLat: number, nextLng: number) {
     setValue('lat', nextLat, { shouldValidate: true, shouldDirty: true })
@@ -151,11 +175,20 @@ export function TerrenoForm({
         label="Corretora (opcional)"
         value={watch('corretora') ?? ''}
         options={corretoras.map((c) => ({ value: c.name, label: c.name }))}
-        onChange={(next) => setValue('corretora', next, { shouldValidate: true, shouldDirty: true })}
+        onChange={handleCorretoraChange}
         allowFreeText
         placeholder="Digite ou escolha uma corretora"
         emptyLabel="Nenhuma corretora ainda — digite pra cadastrar"
         error={errors.corretora?.message}
+      />
+
+      <TextField
+        id="corretoraTelefone"
+        label="Telefone da corretora (opcional)"
+        placeholder="(45) 3333-0000"
+        inputMode="tel"
+        error={errors.corretoraTelefone?.message}
+        {...register('corretoraTelefone')}
       />
 
       <Switch
