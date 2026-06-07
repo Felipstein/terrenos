@@ -7,6 +7,7 @@ import { recalcArea, type AreaField } from '../../lib/area'
 import { TextField } from '../../components/TextField/TextField'
 import { CurrencyField } from '../../components/CurrencyField/CurrencyField'
 import { Combobox } from '../../components/Combobox/Combobox'
+import { Switch } from '../../components/Switch/Switch'
 import { Button } from '../../components/Button/Button'
 import type { Corretora } from '../../types/corretora'
 import { LocationPicker } from './LocationPicker'
@@ -17,6 +18,7 @@ import { ImageUploader } from '../../components/ImageUploader/ImageUploader'
 
 type TerrenoFormValues = {
   rua: string
+  isCorner: boolean
   preco?: number
   lat: number
   lng: number
@@ -42,9 +44,10 @@ function numU(value: number | undefined): number | undefined {
 }
 
 function toDefaults(initial: Terreno | null, lat: number, lng: number): Partial<TerrenoFormValues> {
-  if (!initial) return { lat, lng }
+  if (!initial) return { lat, lng, isCorner: false }
   return {
     rua: initial.rua,
+    isCorner: initial.isCorner,
     preco: initial.preco,
     lat: initial.lat,
     lng: initial.lng,
@@ -153,6 +156,14 @@ export function TerrenoForm({
         placeholder="Digite ou escolha uma corretora"
         emptyLabel="Nenhuma corretora ainda — digite pra cadastrar"
         error={errors.corretora?.message}
+      />
+
+      <Switch
+        id="isCorner"
+        label="Terreno de esquina"
+        description="Marque se o lote fica numa esquina."
+        checked={watch('isCorner') ?? false}
+        onChange={(next) => setValue('isCorner', next, { shouldValidate: true, shouldDirty: true })}
       />
 
       <CurrencyField

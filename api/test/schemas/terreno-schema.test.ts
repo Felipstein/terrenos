@@ -3,6 +3,7 @@ import { terrenoInputSchema } from '../../src/schemas/terreno.schema'
 
 const valid = {
   rua: 'Rua A',
+  isCorner: false,
   preco: 100000,
   lat: -22.9,
   lng: -47.0,
@@ -16,6 +17,13 @@ describe('terrenoInputSchema', () => {
 
   it('rejeita rua vazia', () => {
     expect(terrenoInputSchema.safeParse({ ...valid, rua: '' }).success).toBe(false)
+  })
+
+  it('exige isCorner (boolean obrigatório)', () => {
+    const { isCorner, ...semEsquina } = valid
+    void isCorner
+    expect(terrenoInputSchema.safeParse(semEsquina).success).toBe(false)
+    expect(terrenoInputSchema.safeParse({ ...valid, isCorner: true }).success).toBe(true)
   })
 
   it('rejeita areaTotal não positiva', () => {

@@ -206,6 +206,11 @@ export interface components {
             /** @example Rua das Palmeiras, 120 */
             rua: string;
             /**
+             * @description Se o terreno é de esquina. Obrigatório. Itens antigos sem o campo assumem false (coerção no backend).
+             * @example false
+             */
+            isCorner: boolean;
+            /**
              * @description BRL. Opcional — ausente quando o preço ainda está a negociar.
              * @example 185000
              */

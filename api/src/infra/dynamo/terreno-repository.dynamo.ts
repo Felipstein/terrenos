@@ -27,7 +27,9 @@ function toItem(accountId: string, terreno: Terreno): TerrenoItem {
 
 function toEntity(item: Record<string, unknown>): Terreno {
   const { PK, SK, type, ...terreno } = item as TerrenoItem
-  return terreno
+  // Retrocompat: itens gravados antes do campo `isCorner` não têm a flag —
+  // leitura assume false (esquina é opt-in).
+  return { ...terreno, isCorner: terreno.isCorner ?? false }
 }
 
 /** Implementação DynamoDB (single-table) do repositório de terrenos. */

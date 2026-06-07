@@ -13,6 +13,7 @@ const OTHER_ACCOUNT = 'acct-2'
 
 const input: TerrenoInput = {
   rua: 'Rua A',
+  isCorner: false,
   preco: 100000,
   lat: -22.9,
   lng: -47.0,

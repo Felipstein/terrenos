@@ -276,9 +276,10 @@ components:
 
     TerrenoInput:
       type: object
-      required: [rua, lat, lng, areaTotal]
+      required: [rua, lat, lng, areaTotal, isCorner]
       properties:
         rua: { type: string, example: "Rua das Palmeiras, 120" }
+        isCorner: { type: boolean, description: "Se o terreno é de esquina. Obrigatório. Itens antigos sem o campo assumem false (coerção no backend).", example: false }
         preco: { type: number, description: "BRL. Opcional — ausente quando o preço ainda está a negociar.", example: 185000 }
         lat: { type: number, example: -22.9056 }
         lng: { type: number, example: -47.0608 }

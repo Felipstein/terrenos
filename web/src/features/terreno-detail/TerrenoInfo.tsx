@@ -14,6 +14,7 @@ export function TerrenoInfo({ terreno }: TerrenoInfoProps) {
         {terreno.comprimento ? (
           <InfoField label="Comprimento" value={`${terreno.comprimento} m`} />
         ) : null}
+        <InfoField label="Esquina" value={terreno.isCorner ? 'Sim' : 'Não'} />
       </div>
 
       <p className="font-mono text-[11px] tracking-wide text-taupe">

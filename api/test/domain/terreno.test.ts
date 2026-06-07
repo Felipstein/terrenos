@@ -4,6 +4,7 @@ import { ValidationError } from '../../src/domain/errors'
 
 const baseInput: TerrenoInput = {
   rua: 'Rua das Palmeiras, 120',
+  isCorner: false,
   preco: 185000,
   lat: -22.9056,
   lng: -47.0608,
