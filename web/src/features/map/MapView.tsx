@@ -4,6 +4,7 @@ import type { Terreno } from '../../types/terreno'
 import { PriceMarker } from './PriceMarker'
 import { MapController } from './MapController'
 import { MapTypeControl, type MapTypeId } from './MapTypeControl'
+import { HoverPanController } from './HoverPanController'
 import { InitialView } from './InitialView'
 import { MapUnavailable } from './MapUnavailable'
 import { DEFAULT_CENTER, MAP_ID, hasGoogleMaps } from './config'
@@ -12,15 +13,26 @@ type MapViewProps = {
   terrenos: Terreno[]
   loading: boolean
   selectedId: string | null
+  hoveredId: string | null
   onSelect: (id: string) => void
+  onHover: (id: string | null) => void
   focus: { lat: number; lng: number } | null
 }
 
-export function MapView({ terrenos, loading, selectedId, onSelect, focus }: MapViewProps) {
+export function MapView({
+  terrenos,
+  loading,
+  selectedId,
+  hoveredId,
+  onSelect,
+  onHover,
+  focus,
+}: MapViewProps) {
   const [mapTypeId, setMapTypeId] = useState<MapTypeId>('roadmap')
   if (!hasGoogleMaps) {
     return <MapUnavailable />
   }
+  const hovered = hoveredId ? (terrenos.find((terreno) => terreno.id === hoveredId) ?? null) : null
   return (
     <div className="relative h-full w-full">
       <Map
@@ -33,13 +45,16 @@ export function MapView({ terrenos, loading, selectedId, onSelect, focus }: MapV
         className="h-full w-full"
       >
         <MapController focus={focus} />
+        <HoverPanController hovered={hovered} />
         <InitialView terrenos={terrenos} loading={loading} />
         {terrenos.map((terreno) => (
           <PriceMarker
             key={terreno.id}
             terreno={terreno}
             selected={terreno.id === selectedId}
+            hovered={terreno.id === hoveredId}
             onSelect={onSelect}
+            onHover={onHover}
           />
         ))}
       </Map>

@@ -17,6 +17,7 @@ type SidePanelProps = {
   onSort: (sort: SortOrder) => void
   onCorretora: (value: string) => void
   onSelect: (id: string) => void
+  onHover: (id: string | null) => void
   onAdd: () => void
   onLogout: () => void
 }
@@ -33,6 +34,7 @@ export function SidePanel({
   onSort,
   onCorretora,
   onSelect,
+  onHover,
   onAdd,
   onLogout,
 }: SidePanelProps) {
@@ -69,6 +71,7 @@ export function SidePanel({
           sort={sort}
           onSort={onSort}
           onSelect={onSelect}
+          onHover={onHover}
         />
       </div>
 
