@@ -19,6 +19,7 @@ type MapSheetProps = {
   onCorretora: (value: string) => void
   onCorner: (value: CornerFilter) => void
   onSelect: (id: string) => void
+  onHover: (id: string | null) => void
   onAdd: () => void
 }
 
@@ -35,6 +36,7 @@ export function MapSheet({
   onCorretora,
   onCorner,
   onSelect,
+  onHover,
   onAdd,
 }: MapSheetProps) {
   return (
@@ -60,6 +62,7 @@ export function MapSheet({
         sort={sort}
         onSort={onSort}
         onSelect={onSelect}
+        onHover={onHover}
       />
     </DraggableSheet>
   )

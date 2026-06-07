@@ -1,4 +1,4 @@
-import { useState, type MouseEvent } from 'react'
+import { useState, type PointerEvent } from 'react'
 import type { Terreno } from '../../types/terreno'
 import {
   displayPriceShort,
@@ -15,25 +15,39 @@ type TerrenoTableRowProps = {
   terreno: Terreno
   selected: boolean
   onSelect: (id: string) => void
+  onHover: (id: string | null) => void
 }
 
-export function TerrenoTableRow({ terreno, selected, onSelect }: TerrenoTableRowProps) {
+// Só ponteiro fino (mouse) destaca o pino; toque segue só o fluxo de seleção.
+function isMousePointer(event: PointerEvent): boolean {
+  return event.pointerType === 'mouse'
+}
+
+export function TerrenoTableRow({ terreno, selected, onSelect, onHover }: TerrenoTableRowProps) {
   const [preview, setPreview] = useState<{ top: number; left: number } | null>(null)
   const dim = formatDimensions(terreno.largura, terreno.comprimento)
   const perSqm = pricePerSquareMeter(terreno.preco, terreno.areaTotal)
   const hasImage = Boolean(imagemPrincipal(terreno))
 
-  function handleEnter(event: MouseEvent<HTMLTableRowElement>) {
+  function handleEnter(event: PointerEvent<HTMLTableRowElement>) {
+    if (!isMousePointer(event)) return
+    onHover(terreno.id)
     if (!hasImage) return
     const rect = event.currentTarget.getBoundingClientRect()
     setPreview({ top: rect.top, left: rect.right + 8 })
   }
 
+  function handleLeave(event: PointerEvent<HTMLTableRowElement>) {
+    if (!isMousePointer(event)) return
+    onHover(null)
+    setPreview(null)
+  }
+
   return (
     <tr
       onClick={() => onSelect(terreno.id)}
-      onMouseEnter={handleEnter}
-      onMouseLeave={() => setPreview(null)}
+      onPointerEnter={handleEnter}
+      onPointerLeave={handleLeave}
       className={cn(
         'cursor-pointer border-b border-line/70 transition-colors',
         selected ? 'bg-clay/10' : 'hover:bg-ink/[0.03]',

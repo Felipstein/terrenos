@@ -29,6 +29,7 @@ export function AppShell({ onLogout }: AppShellProps) {
   const [corner, setCorner] = useState<CornerFilter>('all')
   const [sort, setSort] = useState<SortOrder>('price-asc')
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [formOpen, setFormOpen] = useState(false)
   const [corretorasOpen, setCorretorasOpen] = useState(false)
   const [editing, setEditing] = useState<Terreno | null>(null)
@@ -90,6 +91,7 @@ export function AppShell({ onLogout }: AppShellProps) {
         onCorretora={setCorretora}
         onCorner={setCorner}
         onSelect={setSelectedId}
+        onHover={setHoveredId}
         onAdd={openCreate}
         onManageCorretoras={() => setCorretorasOpen(true)}
         onLogout={onLogout}
@@ -100,7 +102,9 @@ export function AppShell({ onLogout }: AppShellProps) {
           terrenos={searched}
           loading={loading}
           selectedId={selectedId}
+          hoveredId={hoveredId}
           onSelect={setSelectedId}
+          onHover={setHoveredId}
           focus={focus}
         />
 
@@ -136,6 +140,7 @@ export function AppShell({ onLogout }: AppShellProps) {
           onCorretora={setCorretora}
           onCorner={setCorner}
           onSelect={setSelectedId}
+          onHover={setHoveredId}
           onAdd={openCreate}
         />
       </div>
