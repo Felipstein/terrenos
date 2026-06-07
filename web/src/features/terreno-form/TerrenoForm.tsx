@@ -4,6 +4,7 @@ import { useEffect, type ChangeEvent } from 'react'
 import type { Terreno, TerrenoInput } from '../../types/terreno'
 import { terrenoSchema } from '../../lib/terreno-validation'
 import { recalcArea, type AreaField } from '../../lib/area'
+import { corretoraPhone, nextCorretoraTelefone } from '../../lib/corretora-autofill'
 import { TextField } from '../../components/TextField/TextField'
 import { CurrencyField } from '../../components/CurrencyField/CurrencyField'
 import { Combobox } from '../../components/Combobox/Combobox'
@@ -42,11 +43,6 @@ type TerrenoFormProps = {
 
 function numU(value: number | undefined): number | undefined {
   return typeof value === 'number' && !Number.isNaN(value) ? value : undefined
-}
-
-function corretoraPhone(corretoras: Corretora[], name: string | undefined): string | undefined {
-  if (!name) return undefined
-  return corretoras.find((c) => c.name === name)?.phone
 }
 
 function toDefaults(
@@ -108,15 +104,16 @@ export function TerrenoForm({
     onDirtyChange?.(dirty)
   }, [dirty, onDirtyChange])
 
-  // Ao escolher/digitar a corretora: grava o nome e, quando o nome bate com uma
-  // corretora conhecida que tem telefone, autopreenche o telefone — sempre
-  // editável (o usuário pode sobrescrever). Não apaga o que ele já digitou.
+  // Ao escolher/digitar a corretora: grava o nome e reconcilia o telefone com a
+  // corretora ESCOLHIDA. Se ela tem telefone conhecido, autopreenche; se não tem
+  // (ou é nome novo), LIMPA — pra não vazar o telefone da corretora anterior.
+  // Continua editável: o usuário pode digitar por cima.
   function handleCorretoraChange(next: string) {
     setValue('corretora', next, { shouldValidate: true, shouldDirty: true })
-    const phone = corretoraPhone(corretoras, next)
-    if (phone !== undefined) {
-      setValue('corretoraTelefone', phone, { shouldValidate: true, shouldDirty: true })
-    }
+    setValue('corretoraTelefone', nextCorretoraTelefone(corretoras, next), {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
   }
 
   async function applyPoint(nextLat: number, nextLng: number) {
