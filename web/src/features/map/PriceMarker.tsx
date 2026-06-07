@@ -1,7 +1,7 @@
 import { AdvancedMarker } from '@vis.gl/react-google-maps'
 import type { PointerEvent } from 'react'
 import type { Terreno } from '../../types/terreno'
-import { displayArea, displayPriceShort } from '../../lib/format'
+import { displayArea, displayPriceShort, formatDimensions } from '../../lib/format'
 import { imagemPrincipal } from '../../lib/imagem'
 import { cn } from '../../lib/cn'
 
@@ -24,10 +24,10 @@ function isMousePointer(event: PointerEvent): boolean {
 
 export function PriceMarker({ terreno, selected, hovered, onSelect, onHover }: PriceMarkerProps) {
   const photo = imagemPrincipal(terreno)
-  const sizeLabel =
-    terreno.largura && terreno.comprimento
-      ? `${displayArea(terreno.areaTotal)} · ${terreno.largura}×${terreno.comprimento}`
-      : displayArea(terreno.areaTotal)
+  const dimensions = formatDimensions(terreno.largura, terreno.comprimento)
+  const sizeLabel = dimensions
+    ? `${displayArea(terreno.areaTotal)} · ${dimensions}`
+    : displayArea(terreno.areaTotal)
   // Destaque (moss) quando selecionado OU em hover — efeito idêntico venha da lista ou do pino.
   const highlighted = selected || hovered
   // Com preço: clay. Sem preço (a negociar): taupe.

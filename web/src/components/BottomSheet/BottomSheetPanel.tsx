@@ -20,7 +20,9 @@ export function BottomSheetPanel({ children }: BottomSheetPanelProps) {
       )}
     >
       <div className="mx-auto mt-3 h-1.5 w-12 shrink-0 rounded-full bg-line md:hidden" />
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{children}</div>
+      <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        {children}
+      </div>
     </div>
   )
 }

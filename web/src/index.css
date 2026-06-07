@@ -39,6 +39,41 @@ button {
   @apply cursor-pointer;
 }
 
+/*
+  Scrollbar fina e discreta na paleta do app (taupe sobre paper).
+  Aplicada nos containers scrolláveis (.scrollbar-thin). Mobile-first:
+  overlay/fina não atrapalha o toque; no desktop ganha o thumb arredondado.
+  Firefox via scrollbar-width/scrollbar-color; WebKit via ::-webkit-scrollbar*.
+*/
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background-color: var(--color-line);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  &:hover::-webkit-scrollbar-thumb {
+    background-color: var(--color-taupe);
+  }
+
+  &::-webkit-scrollbar-thumb:active {
+    background-color: var(--color-taupe-700);
+  }
+}
+
 /* Linhas de grade sutis tipo carta topográfica, atrás do conteúdo */
 .topo-grid {
   background-image:

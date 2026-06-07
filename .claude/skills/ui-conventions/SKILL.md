@@ -17,6 +17,7 @@ App **mobile-first** com layout responsivo. Estética **cartográfica**: papel c
 - **Números em mono** sempre (`font-mono tabular-nums`).
 - Bordas finas `border-line`; acento `clay` pra estados ativos/CTA de rota; primário `moss`.
 - Light mode. Toque-alvo ≥ 44px.
+- **Scrollbar**: containers scrolláveis (`overflow-y-auto`) usam a utility `scrollbar-thin` (definida em `index.css`) — barra fina, arredondada, discreta, `line` em repouso → `taupe` no hover. Não usar a scrollbar default do navegador.
 
 ## Layout
 - **Mobile**: mapa de fundo + **gaveta deslizante** (`DraggableSheet`) com busca + tabela. FAB de cadastro + "Sair" flutuantes.
