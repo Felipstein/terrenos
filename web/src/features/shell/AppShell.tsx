@@ -33,6 +33,8 @@ export function AppShell({ onLogout }: AppShellProps) {
   const [formOpen, setFormOpen] = useState(false)
   const [corretorasOpen, setCorretorasOpen] = useState(false)
   const [editing, setEditing] = useState<Terreno | null>(null)
+  const [createAt, setCreateAt] = useState<{ lat: number; lng: number }>(DEFAULT_CENTER)
+  const [addMode, setAddMode] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
 
@@ -42,8 +44,18 @@ export function AppShell({ onLogout }: AppShellProps) {
   const deleting = terrenos.find((terreno) => terreno.id === deletingId) ?? null
   const focus = selected ? { lat: selected.lat, lng: selected.lng } : null
 
-  function openCreate() {
+  // O FAB/"+ Novo" entra no modo de adição (mira no centro do mapa). A criação
+  // só acontece quando o usuário confirma com "Criar aqui", lendo o centro do
+  // mapa, abrindo o form já com a coordenada/endereço pré-preenchidos.
+  function enterAddMode() {
+    setSelectedId(null)
+    setAddMode(true)
+  }
+
+  function confirmCreate(lat: number, lng: number) {
+    setAddMode(false)
     setEditing(null)
+    setCreateAt({ lat, lng })
     setFormOpen(true)
   }
 
@@ -92,7 +104,7 @@ export function AppShell({ onLogout }: AppShellProps) {
         onCorner={setCorner}
         onSelect={setSelectedId}
         onHover={setHoveredId}
-        onAdd={openCreate}
+        onAdd={enterAddMode}
         onManageCorretoras={() => setCorretorasOpen(true)}
         onLogout={onLogout}
       />
@@ -106,44 +118,51 @@ export function AppShell({ onLogout }: AppShellProps) {
           onSelect={setSelectedId}
           onHover={setHoveredId}
           focus={focus}
+          addMode={addMode}
+          onConfirmCreate={confirmCreate}
+          onCancelAdd={() => setAddMode(false)}
         />
 
-        <div className="absolute right-4 top-4 z-[1000] flex gap-2 md:hidden">
-          <button
-            type="button"
-            onClick={() => setCorretorasOpen(true)}
-            className="rounded-sm bg-surface/90 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wide text-taupe shadow-sm ring-1 ring-line backdrop-blur active:bg-paper"
-          >
-            Corretoras
-          </button>
-          <button
-            type="button"
-            onClick={onLogout}
-            className="rounded-sm bg-surface/90 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wide text-taupe shadow-sm ring-1 ring-line backdrop-blur active:bg-paper"
-          >
-            Sair
-          </button>
+        {!addMode ? (
+          <div className="absolute right-4 top-4 z-[1000] flex gap-2 md:hidden">
+            <button
+              type="button"
+              onClick={() => setCorretorasOpen(true)}
+              className="rounded-sm bg-surface/90 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wide text-taupe shadow-sm ring-1 ring-line backdrop-blur active:bg-paper"
+            >
+              Corretoras
+            </button>
+            <button
+              type="button"
+              onClick={onLogout}
+              className="rounded-sm bg-surface/90 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wide text-taupe shadow-sm ring-1 ring-line backdrop-blur active:bg-paper"
+            >
+              Sair
+            </button>
+          </div>
+        ) : null}
+      </div>
+
+      {!addMode ? (
+        <div className="md:hidden">
+          <MapSheet
+            terrenos={visible}
+            selectedId={selectedId}
+            query={query}
+            sort={sort}
+            corretoras={corretoras}
+            corretora={corretora}
+            corner={corner}
+            onQuery={setQuery}
+            onSort={setSort}
+            onCorretora={setCorretora}
+            onCorner={setCorner}
+            onSelect={setSelectedId}
+            onHover={setHoveredId}
+            onAdd={enterAddMode}
+          />
         </div>
-      </div>
-
-      <div className="md:hidden">
-        <MapSheet
-          terrenos={visible}
-          selectedId={selectedId}
-          query={query}
-          sort={sort}
-          corretoras={corretoras}
-          corretora={corretora}
-          corner={corner}
-          onQuery={setQuery}
-          onSort={setSort}
-          onCorretora={setCorretora}
-          onCorner={setCorner}
-          onSelect={setSelectedId}
-          onHover={setHoveredId}
-          onAdd={openCreate}
-        />
-      </div>
+      ) : null}
 
       <TerrenoSheet
         terreno={selected}
@@ -156,8 +175,8 @@ export function AppShell({ onLogout }: AppShellProps) {
       <TerrenoFormSheet
         open={formOpen}
         terreno={editing}
-        centerLat={DEFAULT_CENTER.lat}
-        centerLng={DEFAULT_CENTER.lng}
+        centerLat={createAt.lat}
+        centerLng={createAt.lng}
         corretoras={corretoras}
         onClose={() => setFormOpen(false)}
         onSubmit={handleSubmit}

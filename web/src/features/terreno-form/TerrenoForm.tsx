@@ -123,6 +123,25 @@ export function TerrenoForm({
     if (address) setValue('rua', address, { shouldValidate: true, shouldDirty: true })
   }
 
+  // Terreno novo aberto a partir do "Criar aqui" (mira no centro do mapa): a
+  // coordenada já vem pré-preenchida, então buscamos o endereço uma vez pra
+  // autopreencher a rua. Não marca dirty: é só o autofill inicial, não uma
+  // edição do usuário.
+  useEffect(() => {
+    if (initial) return
+    let active = true
+    void (async () => {
+      if (getValues('rua')) return
+      const address = await reverseGeocode(centerLat, centerLng)
+      if (active && address && !getValues('rua')) setValue('rua', address)
+    })()
+    return () => {
+      active = false
+    }
+    // só na montagem do form novo (coordenada inicial vem do modo de adição)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const areaRegisters = {
     total: register('areaTotal', { valueAsNumber: true }),
     largura: register('largura', { valueAsNumber: true }),
