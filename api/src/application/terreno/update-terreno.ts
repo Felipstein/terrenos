@@ -11,12 +11,22 @@ export class UpdateTerreno {
     private readonly corretoras: CorretoraRepository,
   ) {}
 
-  async execute(accountId: string, id: string, input: TerrenoInput): Promise<Terreno> {
+  async execute(
+    accountId: string,
+    id: string,
+    input: TerrenoInput,
+    corretoraTelefone?: string,
+  ): Promise<Terreno> {
     const existing = await this.terrenos.get(accountId, id)
     if (existing === null) {
       throw new NotFoundError('Terreno não encontrado')
     }
-    const corretora = await resolveCorretoraName(this.corretoras, accountId, input.corretora)
+    const corretora = await resolveCorretoraName(
+      this.corretoras,
+      accountId,
+      input.corretora,
+      corretoraTelefone,
+    )
     const updated = applyTerrenoUpdate(existing, { ...input, corretora }, new Date().toISOString())
     await this.terrenos.put(accountId, updated)
     return updated

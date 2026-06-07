@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { slugify } from '../../src/domain/corretora/slug'
-import { makeCorretora } from '../../src/domain/corretora/corretora'
+import { makeCorretora, normalizePhone } from '../../src/domain/corretora/corretora'
 
 describe('slugify', () => {
   it('minúsculas, sem acento, com hífens', () => {
@@ -34,5 +34,29 @@ describe('makeCorretora', () => {
     expect(makeCorretora(undefined)).toBeUndefined()
     expect(makeCorretora('   ')).toBeUndefined()
     expect(makeCorretora('!!!')).toBeUndefined()
+  })
+
+  it('inclui o telefone quando informado (trimado)', () => {
+    expect(makeCorretora('Imobiliária Silva', ' (45) 3333-0000 ')).toEqual({
+      slug: 'imobiliaria-silva',
+      name: 'Imobiliária Silva',
+      phone: '(45) 3333-0000',
+    })
+  })
+
+  it('omite o telefone quando vazio/ausente', () => {
+    expect(makeCorretora('Imobiliária Silva', '   ')).toEqual({
+      slug: 'imobiliaria-silva',
+      name: 'Imobiliária Silva',
+    })
+    expect(makeCorretora('Imobiliária Silva')).not.toHaveProperty('phone')
+  })
+})
+
+describe('normalizePhone', () => {
+  it('trima e vira undefined quando vazio', () => {
+    expect(normalizePhone('  (45) 3333-0000 ')).toBe('(45) 3333-0000')
+    expect(normalizePhone('   ')).toBeUndefined()
+    expect(normalizePhone(undefined)).toBeUndefined()
   })
 })
