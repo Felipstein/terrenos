@@ -3,7 +3,8 @@ import { ValidationError } from '../errors'
 
 /**
  * Entidade Terreno. Espelha o schema `Terreno` do contrato + carimbos de tempo.
- * `areaTotal` é em m²; `largura`/`comprimento` em metros.
+ * `areaTotal` é em m²; `largura`/`comprimento` em metros. Todas as medidas são
+ * opcionais — um terreno pode ser salvo sem nenhuma.
  */
 export type Terreno = {
   id: string
@@ -13,7 +14,7 @@ export type Terreno = {
   preco?: number
   lat: number
   lng: number
-  areaTotal: number
+  areaTotal?: number
   largura?: number
   comprimento?: number
   link?: string
@@ -31,9 +32,10 @@ export type TerrenoInput = Omit<Terreno, 'id' | 'createdAt' | 'updatedAt'>
 /**
  * Invariante de área: quando largura E comprimento existem, a área total é
  * derivada deles (fonte da verdade), ignorando o valor enviado. Sem as duas
- * medidas, usa a `areaTotal` informada.
+ * medidas, usa a `areaTotal` informada (que também é opcional — pode ser
+ * `undefined` quando o terreno é salvo sem nenhuma medida).
  */
-function resolveAreaTotal(input: TerrenoInput): number {
+function resolveAreaTotal(input: TerrenoInput): number | undefined {
   if (input.largura !== undefined && input.comprimento !== undefined) {
     return input.largura * input.comprimento
   }

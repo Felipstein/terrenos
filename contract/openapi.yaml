@@ -305,16 +305,16 @@ components:
 
     TerrenoInput:
       type: object
-      required: [rua, lat, lng, areaTotal, isCorner]
+      required: [rua, lat, lng, isCorner]
       properties:
         rua: { type: string, example: "Rua das Palmeiras, 120" }
         isCorner: { type: boolean, description: "Se o terreno é de esquina. Obrigatório. Itens antigos sem o campo assumem false (coerção no backend).", example: false }
         preco: { type: number, description: "BRL. Opcional — ausente quando o preço ainda está a negociar.", example: 185000 }
         lat: { type: number, example: -22.9056 }
         lng: { type: number, example: -47.0608 }
-        areaTotal: { type: number, description: m², example: 250 }
-        largura: { type: number, description: metros, example: 10 }
-        comprimento: { type: number, description: metros, example: 25 }
+        areaTotal: { type: number, description: "m². Opcional — todas as medidas são opcionais; quando largura E comprimento existem, o backend deriva areaTotal delas.", example: 250 }
+        largura: { type: number, description: "metros (opcional)", example: 10 }
+        comprimento: { type: number, description: "metros (opcional)", example: 25 }
         link: { type: string, format: uri }
         whatsapp: { type: string, description: "Telefone/WhatsApp do contato (opcional). Texto livre — DDI 55 assumido se ausente.", example: "(45) 99999-0000" }
         corretora: { type: string, description: "Nome da corretora (opcional, texto livre). O backend deduplica por slug e guarda/retorna o nome canônico do 1º cadastro.", example: "Imobiliária Silva" }

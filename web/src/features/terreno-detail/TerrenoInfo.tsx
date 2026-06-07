@@ -9,7 +9,9 @@ export function TerrenoInfo({ terreno }: TerrenoInfoProps) {
   return (
     <div className="flex flex-col gap-4 px-5">
       <div className="grid grid-cols-3 gap-3 border-y border-line py-4">
-        <InfoField label="Área" value={`${terreno.areaTotal} m²`} />
+        {terreno.areaTotal ? (
+          <InfoField label="Área" value={`${terreno.areaTotal} m²`} />
+        ) : null}
         {terreno.largura ? <InfoField label="Largura" value={`${terreno.largura} m`} /> : null}
         {terreno.comprimento ? (
           <InfoField label="Comprimento" value={`${terreno.comprimento} m`} />
