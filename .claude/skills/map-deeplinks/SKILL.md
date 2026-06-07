@@ -5,6 +5,7 @@ governs:
   - web/src/lib/maps.ts
   - web/src/lib/parse-maps-url.ts
   - web/src/features/map/**
+  - web/src/features/list/TerrenoTableRow.tsx
   - web/src/features/terreno-detail/RouteButton.tsx
 ---
 
@@ -26,6 +27,14 @@ https://www.google.com/maps/dir/?api=1&destination=LAT,LNG
 
 ## 3. Reverse geocoding (endereço a partir do ponto)
 `features/map/useReverseGeocode.ts` usa o geocoding do Google (via `@vis.gl/react-google-maps`). Retorna `null` se a lib não carregou (ex: sem chave). Usado no cadastro pra autopreencher a `rua`.
+
+## 4. Hover sincronizado lista ↔ pino (D4)
+Estado de "terreno em hover" **elevado no `AppShell`** (`hoveredId` + `setHoveredId`), compartilhado entre lista e mapa — o efeito é **idêntico** venha da linha da tabela ou direto do pino.
+- **Hover só com mouse**: linha (`TerrenoTableRow`) e pino (`PriceMarker`) usam `onPointerEnter/Leave` filtrados por `pointerType === 'mouse'`. Em **touch não há hover** — o toque segue só o fluxo de seleção (`onSelect`). Progressive enhancement pra ponteiro.
+- **Destaque visual**: `PriceMarker` aplica o tom `moss` + `scale-110` quando `selected || hovered` (mesmo destaque do selecionado).
+- **z-index do pino** (`PriceMarker`): hover = `2000` (acima de TODOS, pra pino escondido vir pra frente), selecionado = `1000`, demais = `undefined`.
+- **Pan automático**: `features/map/HoverPanController.tsx` recebe o terreno em hover; se ele estiver **fora dos `getBounds()` atuais**, faz `panTo` suave até ele. Não mexe no zoom e não paneia pinos já visíveis.
+- O hover **não re-renderiza o mapa inteiro** — só os pinos cujo `hovered`/`selected` mudou (props primitivas + setters estáveis + React Compiler).
 
 ## Provider e chave
 Mapa = Google Maps (`@vis.gl/react-google-maps`), chave em `VITE_GOOGLE_MAPS_API_KEY`, `mapId` em `VITE_GOOGLE_MAPS_MAP_ID`. **Restringir a chave por domínio + teto de cota** no Google Cloud pra não gerar custo.

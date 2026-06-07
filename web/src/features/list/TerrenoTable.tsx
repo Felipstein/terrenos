@@ -9,6 +9,7 @@ type TerrenoTableProps = {
   sort: SortOrder
   onSort: (sort: SortOrder) => void
   onSelect: (id: string) => void
+  onHover: (id: string | null) => void
 }
 
 type SortField = 'price' | 'area' | 'pricePerSqm'
@@ -18,7 +19,14 @@ function arrow(active: boolean, asc: boolean): string {
   return asc ? '↑' : '↓'
 }
 
-export function TerrenoTable({ terrenos, selectedId, sort, onSort, onSelect }: TerrenoTableProps) {
+export function TerrenoTable({
+  terrenos,
+  selectedId,
+  sort,
+  onSort,
+  onSelect,
+  onHover,
+}: TerrenoTableProps) {
   function toggle(field: SortField) {
     const asc = `${field}-asc` as SortOrder
     const desc = `${field}-desc` as SortOrder
@@ -80,6 +88,7 @@ export function TerrenoTable({ terrenos, selectedId, sort, onSort, onSelect }: T
             terreno={terreno}
             selected={terreno.id === selectedId}
             onSelect={onSelect}
+            onHover={onHover}
           />
         ))}
       </tbody>
