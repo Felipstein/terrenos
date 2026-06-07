@@ -10,6 +10,9 @@ governs:
 
 # Google Maps — rota, parsing e geocoding
 
+## 0. Tipo de mapa (roadmap × satélite)
+`features/map/MapTypeControl.tsx` é o segmented control flutuante (canto superior esquerdo do mapa) que alterna entre **Mapa** (`roadmap`) e **Satélite** (`satellite`). O estado vive no `MapView`, que passa o valor pra prop `mapTypeId` do `<Map>` (`@vis.gl/react-google-maps`). Default = `roadmap`. Sem chave de API o mapa cai no placeholder e o controle nem renderiza.
+
 ## 1. Rota até o destino (deep-link nativo)
 O botão de rota abre o **app nativo do Google Maps** com a rota. Vale pra qualquer provider de mapa na tela.
 ```
