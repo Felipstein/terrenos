@@ -24,8 +24,9 @@ App **mobile-first** com layout responsivo. Estética **cartográfica**: papel c
 - **Modais** (detalhe/cadastro): bottom sheet no mobile, **centralizados com largura limitada** no desktop (ver `BottomSheetPanel`).
 
 ## Tabela de terrenos
-- Colunas: **Endereço** (trunca) · **Área** · **Dim.** (L×C) · **Preço**.
-- Headers **Área** e **Preço** são botões que ordenam (toggle asc/desc, seta em `clay` quando ativo). Ver `TerrenoTable`.
+- Colunas: **Endereço** (trunca) · **Área** (m², com as dimensões L×C em linha secundária menor abaixo, quando houver) · **Preço** (compacto, `displayPriceShort`) · **R$/m²** (preço por m², derivado — última coluna).
+- Headers **Área**, **Preço** e **R$/m²** são botões que ordenam (toggle asc/desc, seta em `clay` quando ativo). Ordenar por R$/m² mostra custo-benefício (mais barato → mais caro por m²). Ver `TerrenoTable`.
+- **Mobile-first:** 4 colunas no máximo, paddings/fontes compactos, **sem scroll horizontal**. Dimensão (L×C) não é coluna própria — vive sob a Área pra não estourar a largura.
 - Pin do mapa = pill creme com preço em mono + ponta; `clay` quando selecionado; a linha da tabela destaca o selecionado.
 
 ## Componentes-chave

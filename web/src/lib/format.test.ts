@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
   displayPrice,
+  displayPricePerSqm,
   displayPriceShort,
   formatArea,
   formatPrice,
+  formatPricePerSqm,
   formatPriceShort,
+  pricePerSquareMeter,
   PRICE_TBD,
 } from './format'
 
@@ -44,5 +47,30 @@ describe('displayPrice / displayPriceShort', () => {
   it('usa o rótulo "Sob consulta" quando não há preço', () => {
     expect(displayPrice(undefined)).toBe(PRICE_TBD)
     expect(displayPriceShort(undefined)).toBe(PRICE_TBD)
+  })
+})
+
+describe('pricePerSquareMeter', () => {
+  it('calcula preço / área total', () => {
+    expect(pricePerSquareMeter(100000, 500)).toBe(200)
+  })
+
+  it('é indefinido sem preço', () => {
+    expect(pricePerSquareMeter(undefined, 500)).toBeUndefined()
+  })
+
+  it('é indefinido com área não positiva', () => {
+    expect(pricePerSquareMeter(100000, 0)).toBeUndefined()
+  })
+})
+
+describe('formatPricePerSqm / displayPricePerSqm', () => {
+  it('formata compacto arredondando os reais', () => {
+    expect(formatPricePerSqm(333.33)).toBe('R$ 333/m²')
+  })
+
+  it('usa "—" quando não há valor', () => {
+    expect(displayPricePerSqm(undefined)).toBe('—')
+    expect(displayPricePerSqm(200)).toBe('R$ 200/m²')
   })
 })

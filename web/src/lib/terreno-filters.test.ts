@@ -56,6 +56,30 @@ describe('filterAndSort', () => {
     ])
   })
 
+  it('ordena por preço/m² (do mais barato ao mais caro por m²)', () => {
+    // a: 300000/500 = 600 · b: 100000/300 ≈ 333 · c: 200000/100 = 2000
+    expect(
+      filterAndSort(data, { query: '', sort: 'pricePerSqm-asc', corretora: '' }).map((t) => t.id),
+    ).toEqual(['b', 'a', 'c'])
+    expect(
+      filterAndSort(data, { query: '', sort: 'pricePerSqm-desc', corretora: '' }).map((t) => t.id),
+    ).toEqual(['c', 'a', 'b'])
+  })
+
+  it('manda terrenos sem preço/m² pro fim na ordenação por m² (asc e desc)', () => {
+    const semValor: Terreno[] = [
+      terreno('a', 'Rua A', 300000, 300), // 1000/m²
+      terreno('x', 'Rua X', undefined, 200), // sem preço
+      terreno('b', 'Rua B', 100000, 500), // 200/m²
+    ]
+    expect(
+      filterAndSort(semValor, { query: '', sort: 'pricePerSqm-asc', corretora: '' }).map((t) => t.id),
+    ).toEqual(['b', 'a', 'x'])
+    expect(
+      filterAndSort(semValor, { query: '', sort: 'pricePerSqm-desc', corretora: '' }).map((t) => t.id),
+    ).toEqual(['a', 'b', 'x'])
+  })
+
   it('filtra por endereço (case-insensitive)', () => {
     const r = filterAndSort(data, { query: 'rua', sort: 'price-asc', corretora: '' })
     expect(r.map((t) => t.id)).toEqual(['c', 'a'])

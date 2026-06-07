@@ -44,3 +44,23 @@ export function displayPrice(value: number | undefined): string {
 export function displayPriceShort(value: number | undefined): string {
   return value === undefined ? PRICE_TBD : formatPriceShort(value)
 }
+
+// Preço por m² = preço / área total. Calculado 100% no front (preço e área já
+// existem no terreno). Indefinido quando falta preço ou a área não é positiva —
+// nesses casos a UI mostra "—" e a ordenação manda pro fim.
+export function pricePerSquareMeter(
+  preco: number | undefined,
+  areaTotal: number,
+): number | undefined {
+  if (preco === undefined || !Number.isFinite(areaTotal) || areaTotal <= 0) return undefined
+  return preco / areaTotal
+}
+
+// Formato compacto pra caber bem no mobile: "R$ 333/m²" (arredonda os reais).
+export function formatPricePerSqm(value: number): string {
+  return `${formatPrice(Math.round(value))}/m²`
+}
+
+export function displayPricePerSqm(value: number | undefined): string {
+  return value === undefined ? '—' : formatPricePerSqm(value)
+}
