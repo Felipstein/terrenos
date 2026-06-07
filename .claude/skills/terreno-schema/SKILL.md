@@ -39,6 +39,9 @@ Campos canônicos (independe de onde os dados ficam guardados).
 ## Preço ausente (a negociar)
 `preco` é opcional. Sem valor, exibe-se o rótulo **"Sob consulta"** (`PRICE_TBD` em `lib/format.ts`) via `displayPrice` / `displayPriceShort` — **não** chamar `formatPrice` direto com valor possivelmente `undefined`. No mapa o pin sem preço usa cor **taupe** (vs. clay com preço, moss selecionado). Na ordenação por preço, os sem-preço vão sempre pro **fim** (asc e desc).
 
+## Preço por m² (derivado — não é campo)
+`preço/m² = preco / areaTotal`. Calculado 100% no front (não persiste, não é campo do schema). Helpers em `lib/format.ts`: `pricePerSquareMeter(preco, areaTotal)` retorna `undefined` quando falta preço ou a área não é positiva; `formatPricePerSqm` exibe compacto (`"R$ 333/m²"`, arredonda reais; a partir de 10 mil usa sufixo `K` — `"R$ 500K/m²"` — pra caber na coluna estreita do mobile sem scroll horizontal); `displayPricePerSqm` mostra `"—"` quando indefinido. Na lista é a **última coluna** e ordenável (`pricePerSqm-asc/desc` em `lib/terreno-filters.ts`) — os sem-valor vão pro **fim** (asc e desc), igual ao preço.
+
 ## Auto-cálculo das medidas
 `total = largura × comprimento`. Preenchidos 2, o 3º se completa. Lógica pura e testada em `lib/area.ts` (`recalcArea`) — **não** reimplementar inline.
 

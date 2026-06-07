@@ -1,6 +1,6 @@
 import { useState, type MouseEvent } from 'react'
 import type { Terreno } from '../../types/terreno'
-import { displayPrice } from '../../lib/format'
+import { displayPriceShort, displayPricePerSqm, pricePerSquareMeter } from '../../lib/format'
 import { imagemPrincipal } from '../../lib/imagem'
 import { cn } from '../../lib/cn'
 import { RowImagePreview } from './RowImagePreview'
@@ -14,7 +14,8 @@ type TerrenoTableRowProps = {
 export function TerrenoTableRow({ terreno, selected, onSelect }: TerrenoTableRowProps) {
   const [preview, setPreview] = useState<{ top: number; left: number } | null>(null)
   const dim =
-    terreno.largura && terreno.comprimento ? `${terreno.largura}×${terreno.comprimento}` : '—'
+    terreno.largura && terreno.comprimento ? `${terreno.largura}×${terreno.comprimento}` : null
+  const perSqm = pricePerSquareMeter(terreno.preco, terreno.areaTotal)
   const hasImage = Boolean(imagemPrincipal(terreno))
 
   function handleEnter(event: MouseEvent<HTMLTableRowElement>) {
@@ -33,21 +34,33 @@ export function TerrenoTableRow({ terreno, selected, onSelect }: TerrenoTableRow
         selected ? 'bg-clay/10' : 'hover:bg-ink/[0.03]',
       )}
     >
-      <td className="px-4 py-3.5">
+      <td className="px-3 py-3">
         <span className="block truncate text-sm text-ink">{terreno.rua}</span>
         {preview ? <RowImagePreview terreno={terreno} top={preview.top} left={preview.left} /> : null}
       </td>
-      <td className="whitespace-nowrap px-2 py-3.5 text-right font-mono text-xs tabular-nums text-taupe">
-        {terreno.areaTotal} m²
+      <td className="whitespace-nowrap px-1.5 py-3 text-right">
+        <span className="block font-mono text-xs tabular-nums text-taupe">
+          {terreno.areaTotal} m²
+        </span>
+        {dim ? (
+          <span className="block font-mono text-[10px] tabular-nums text-taupe/70">{dim}</span>
+        ) : null}
       </td>
-      <td className="px-2 py-3.5 text-right font-mono text-xs tabular-nums text-taupe">{dim}</td>
       <td
         className={cn(
-          'whitespace-nowrap px-4 py-3.5 text-right font-mono text-[13px] tabular-nums',
+          'whitespace-nowrap px-1.5 py-3 text-right font-mono text-xs tabular-nums',
           terreno.preco === undefined ? 'font-medium text-taupe' : 'font-semibold text-ink',
         )}
       >
-        {displayPrice(terreno.preco)}
+        {displayPriceShort(terreno.preco)}
+      </td>
+      <td
+        className={cn(
+          'whitespace-nowrap px-1.5 py-3 text-right font-mono text-xs tabular-nums',
+          perSqm === undefined ? 'text-taupe/70' : 'text-taupe',
+        )}
+      >
+        {displayPricePerSqm(perSqm)}
       </td>
     </tr>
   )
