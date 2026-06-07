@@ -97,7 +97,7 @@ export function Combobox({
           <ul
             id={c.listId}
             role="listbox"
-            className="absolute left-0 right-0 z-[1300] mt-1 max-h-56 overflow-y-auto overscroll-contain rounded-sm border border-line bg-surface py-1 shadow-[0_12px_32px_rgba(33,29,21,0.18)]"
+            className="scrollbar-thin absolute left-0 right-0 z-[1300] mt-1 max-h-56 overflow-y-auto overscroll-contain rounded-sm border border-line bg-surface py-1 shadow-[0_12px_32px_rgba(33,29,21,0.18)]"
           >
             {c.filtered.length === 0 ? (
               <li className="px-3 py-2.5 text-sm text-taupe">{emptyLabel}</li>

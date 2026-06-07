@@ -70,7 +70,7 @@ export function SidePanel({
         onCorner={onCorner}
       />
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto">
         <TerrenoTable
           terrenos={terrenos}
           selectedId={selectedId}
