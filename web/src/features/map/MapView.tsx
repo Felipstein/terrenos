@@ -7,7 +7,11 @@ import { MapTypeControl, type MapTypeId } from './MapTypeControl'
 import { HoverPanController } from './HoverPanController'
 import { InitialView } from './InitialView'
 import { MapUnavailable } from './MapUnavailable'
+import { AddTargetCrosshair } from './AddTargetCrosshair'
+import { AddModeControls } from './AddModeControls'
 import { DEFAULT_CENTER, MAP_ID, hasGoogleMaps } from './config'
+
+function noop() {}
 
 type MapViewProps = {
   terrenos: Terreno[]
@@ -17,6 +21,9 @@ type MapViewProps = {
   onSelect: (id: string) => void
   onHover: (id: string | null) => void
   focus: { lat: number; lng: number } | null
+  addMode: boolean
+  onConfirmCreate: (lat: number, lng: number) => void
+  onCancelAdd: () => void
 }
 
 export function MapView({
@@ -27,6 +34,9 @@ export function MapView({
   onSelect,
   onHover,
   focus,
+  addMode,
+  onConfirmCreate,
+  onCancelAdd,
 }: MapViewProps) {
   const [mapTypeId, setMapTypeId] = useState<MapTypeId>('roadmap')
   if (!hasGoogleMaps) {
@@ -53,11 +63,14 @@ export function MapView({
             terreno={terreno}
             selected={terreno.id === selectedId}
             hovered={terreno.id === hoveredId}
-            onSelect={onSelect}
+            onSelect={addMode ? noop : onSelect}
             onHover={onHover}
           />
         ))}
+        {addMode ? <AddModeControls onConfirm={onConfirmCreate} onCancel={onCancelAdd} /> : null}
       </Map>
+
+      {addMode ? <AddTargetCrosshair /> : null}
 
       <div className="absolute left-4 top-4 z-[1000]">
         <MapTypeControl value={mapTypeId} onChange={setMapTypeId} />

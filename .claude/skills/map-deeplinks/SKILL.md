@@ -35,6 +35,12 @@ Estado de "terreno em hover" **elevado no `AppShell`** (`hoveredId` + `setHovere
 - **z-index do pino** (`PriceMarker`): hover = `2000` (acima de TODOS, pra pino escondido vir pra frente), selecionado = `1000`, demais = `undefined`.
 - **Pan automático**: `features/map/HoverPanController.tsx` recebe o terreno em hover; se ele estiver **fora dos `getBounds()` atuais**, faz `panTo` suave até ele. Não mexe no zoom e não paneia pinos já visíveis.
 - O hover **não re-renderiza o mapa inteiro** — só os pinos cujo `hovered`/`selected` mudou (props primitivas + setters estáveis + React Compiler).
+## 5. Criar terreno no mapa (modo de adição — alvo central)
+O FAB "adicionar" (gaveta no mobile, "+ Novo" no desktop) entra em **modo de adição** em vez de abrir o form direto. No modo:
+- `features/map/AddTargetCrosshair.tsx` desenha uma **mira FIXA no centro** do mapa (overlay `pointer-events-none`, **não** é um marker). O usuário **arrasta o mapa** pra posicionar o alvo — **não** há tap pra posicionar (evita disparo acidental).
+- `features/map/AddModeControls.tsx` (roda dentro do `<Map>`, usa `useMap`) mostra a barra embaixo: **"Criar aqui →"** lê `map.getCenter()` e abre o form de cadastro com a coordenada; **(✕)** cancela e sai do modo.
+- Durante o modo: pan segue normal; clique no pin **não** seleciona nem cria (`onSelect` vira no-op em `MapView`); a gaveta mobile e o botão "Sair" ficam ocultos pra não colidir com a barra.
+- O form (`TerrenoForm`) recebe a coordenada via `centerLat/centerLng` e, sendo **terreno novo**, faz **reverse-geocode uma vez na montagem** pra autopreencher a `rua` (sem marcar dirty).
 
 ## Provider e chave
 Mapa = Google Maps (`@vis.gl/react-google-maps`), chave em `VITE_GOOGLE_MAPS_API_KEY`, `mapId` em `VITE_GOOGLE_MAPS_MAP_ID`. **Restringir a chave por domínio + teto de cota** no Google Cloud pra não gerar custo.

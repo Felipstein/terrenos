@@ -123,6 +123,27 @@ export function TerrenoForm({
     if (address) setValue('rua', address, { shouldValidate: true, shouldDirty: true })
   }
 
+  // Terreno novo aberto a partir do "Criar aqui" (mira no centro do mapa): a
+  // coordenada já vem pré-preenchida, então buscamos o endereço pra autopreencher
+  // a rua. `reverseGeocode` retorna null enquanto a lib 'geocoding' carrega; como
+  // ele é estável via useCallback([geocodingLib]) e muda de null→geocoder quando
+  // fica pronta, mantê-lo nas deps faz o efeito re-tentar na primeira abertura
+  // (e em page load frio). Guardas: não roda em edição (initial != null), não
+  // sobrescreve o que o usuário já digitou e não marca dirty (autofill inicial,
+  // não edição do usuário).
+  useEffect(() => {
+    if (initial) return
+    let active = true
+    void (async () => {
+      if (getValues('rua')) return
+      const address = await reverseGeocode(centerLat, centerLng)
+      if (active && address && !getValues('rua')) setValue('rua', address)
+    })()
+    return () => {
+      active = false
+    }
+  }, [reverseGeocode, initial, centerLat, centerLng, getValues, setValue])
+
   const areaRegisters = {
     total: register('areaTotal', { valueAsNumber: true }),
     largura: register('largura', { valueAsNumber: true }),
