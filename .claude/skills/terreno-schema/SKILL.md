@@ -53,6 +53,9 @@ Campos canônicos (independe de onde os dados ficam guardados).
 ### Exibição com área ausente
 Sem `areaTotal`, exibe-se o rótulo **`—`** (`AREA_UNKNOWN` em `lib/format.ts`) via `displayArea` — **não** chamar `formatArea` direto com valor possivelmente `undefined`. No detalhe (`TerrenoInfo`) cada medida (área/largura/comprimento) só aparece se preenchida; o campo **Esquina** (`isCorner`) é sempre exibido. Na ordenação por área, os sem-área vão sempre pro **fim** (asc e desc), igual à de preço.
 
+## Exibição de números (teto de 2 casas)
+Todo número de medida é exibido com **no máximo 2 casas decimais** — é só **display**, o valor cru (incluindo lixo de ponto flutuante do auto-cálculo, ex `269.83000000000004`) é preservado no dado/storage. Centralizado em `lib/format.ts`: `formatNumber` (base, `Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 })`), `formatArea` (`… m²`), `formatMeasure` (`… m` pra largura/comprimento) e `formatDimensions(largura, comprimento)` (`L×C`, `undefined` se faltar um lado). Zeros à direita são removidos (`300`, `267,6`, `269,83`) — o requisito é o teto, não forçar 2 casas. **Nunca** interpolar `terreno.areaTotal/largura/comprimento` cru em JSX; usar esses helpers.
+
 ## Validação
 A fonte da validação é o zod em `lib/terreno-validation.ts` (`terrenoSchema`); o form consome via `zodResolver` (skill `forms`). `TerrenoInput = z.infer<typeof terrenoSchema>` e `Terreno = TerrenoInput & { id }`.
 

@@ -102,7 +102,9 @@ export function DraggableSheet({
         <div className="mx-auto h-1.5 w-12 rounded-full bg-line" />
       </div>
       <div className="shrink-0">{header}</div>
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{children}</div>
+      <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        {children}
+      </div>
     </div>
   )
 }

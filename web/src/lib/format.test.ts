@@ -4,6 +4,9 @@ import {
   displayPricePerSqm,
   displayPriceShort,
   formatArea,
+  formatDimensions,
+  formatMeasure,
+  formatNumber,
   formatPrice,
   formatPricePerSqm,
   formatPriceShort,
@@ -17,10 +20,49 @@ describe('formatPrice', () => {
   })
 })
 
+describe('formatNumber', () => {
+  it('limita a 2 casas decimais na exibição (lixo de ponto flutuante)', () => {
+    expect(formatNumber(269.83000000000004)).toBe('269,83')
+    expect(formatNumber(249.95999999999998)).toBe('249,96')
+  })
+
+  it('remove zeros à direita — o requisito é o teto, não forçar 2 casas', () => {
+    expect(formatNumber(300)).toBe('300')
+    expect(formatNumber(267.6)).toBe('267,6')
+  })
+
+  it('arredonda a 3ª casa em diante', () => {
+    expect(formatNumber(10.005)).toBe('10,01')
+    expect(formatNumber(10.004)).toBe('10')
+  })
+})
+
 describe('formatArea', () => {
   it('formata metros quadrados', () => {
     expect(formatArea(250)).toBe('250 m²')
     expect(formatArea(1250)).toBe('1.250 m²')
+  })
+
+  it('limita a área a 2 casas decimais', () => {
+    expect(formatArea(269.83000000000004)).toBe('269,83 m²')
+  })
+})
+
+describe('formatMeasure', () => {
+  it('formata metros com teto de 2 casas', () => {
+    expect(formatMeasure(15)).toBe('15 m')
+    expect(formatMeasure(15.123456)).toBe('15,12 m')
+  })
+})
+
+describe('formatDimensions', () => {
+  it('monta L×C com teto de 2 casas em cada lado', () => {
+    expect(formatDimensions(15, 17.989)).toBe('15×17,99')
+  })
+
+  it('é indefinido sem largura ou comprimento', () => {
+    expect(formatDimensions(undefined, 10)).toBeUndefined()
+    expect(formatDimensions(10, undefined)).toBeUndefined()
   })
 })
 

@@ -4,9 +4,17 @@ const priceFormatter = new Intl.NumberFormat('pt-BR', {
   maximumFractionDigits: 0,
 })
 
-const numberFormatter = new Intl.NumberFormat('pt-BR', {
-  maximumFractionDigits: 0,
+// Números "medida" (área, dimensão): teto de 2 casas decimais na EXIBIÇÃO.
+// O dado cru continua cru (ex: 269.83000000000004); só o display arredonda.
+// Zeros à direita são removidos (267.6, 300, 269.83) — o requisito é o teto, não forçar 2 casas.
+const measureFormatter = new Intl.NumberFormat('pt-BR', {
+  maximumFractionDigits: 2,
 })
+
+// Centraliza o teto de 2 casas pra qualquer número de medida exibido na UI.
+export function formatNumber(value: number): string {
+  return measureFormatter.format(value)
+}
 
 // Intl usa espaços especiais (NBSP / narrow NBSP) entre símbolo e número.
 // Normalizamos pra espaço comum, pra display previsível e testável.
@@ -21,7 +29,21 @@ export function formatPrice(value: number): string {
 }
 
 export function formatArea(squareMeters: number): string {
-  return `${numberFormatter.format(squareMeters)} m²`
+  return `${formatNumber(squareMeters)} m²`
+}
+
+// Medida linear (largura, comprimento) em metros, com teto de 2 casas.
+export function formatMeasure(meters: number): string {
+  return `${formatNumber(meters)} m`
+}
+
+// Dimensão "L×C" pro pin e pra tabela, cada lado com teto de 2 casas.
+export function formatDimensions(
+  largura: number | undefined,
+  comprimento: number | undefined,
+): string | undefined {
+  if (largura === undefined || comprimento === undefined) return undefined
+  return `${formatNumber(largura)}×${formatNumber(comprimento)}`
 }
 
 // Rótulo quando o terreno não tem nenhuma medida de área informada

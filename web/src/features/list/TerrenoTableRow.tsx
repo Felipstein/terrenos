@@ -1,6 +1,12 @@
 import { useState, type PointerEvent } from 'react'
 import type { Terreno } from '../../types/terreno'
-import { displayPriceShort, displayPricePerSqm, displayArea, pricePerSquareMeter } from '../../lib/format'
+import {
+  displayPriceShort,
+  displayPricePerSqm,
+  pricePerSquareMeter,
+  displayArea,
+  formatDimensions,
+} from '../../lib/format'
 import { imagemPrincipal } from '../../lib/imagem'
 import { cn } from '../../lib/cn'
 import { RowImagePreview } from './RowImagePreview'
@@ -19,8 +25,7 @@ function isMousePointer(event: PointerEvent): boolean {
 
 export function TerrenoTableRow({ terreno, selected, onSelect, onHover }: TerrenoTableRowProps) {
   const [preview, setPreview] = useState<{ top: number; left: number } | null>(null)
-  const dim =
-    terreno.largura && terreno.comprimento ? `${terreno.largura}×${terreno.comprimento}` : null
+  const dim = formatDimensions(terreno.largura, terreno.comprimento)
   const perSqm = pricePerSquareMeter(terreno.preco, terreno.areaTotal)
   const hasImage = Boolean(imagemPrincipal(terreno))
 
