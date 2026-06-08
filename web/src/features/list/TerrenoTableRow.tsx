@@ -1,6 +1,6 @@
 import { useState, type PointerEvent } from 'react'
 import type { Terreno } from '../../types/terreno'
-import { displayPriceShort, displayPricePerSqm, pricePerSquareMeter } from '../../lib/format'
+import { displayPriceShort, displayPricePerSqm, displayArea, pricePerSquareMeter } from '../../lib/format'
 import { imagemPrincipal } from '../../lib/imagem'
 import { cn } from '../../lib/cn'
 import { RowImagePreview } from './RowImagePreview'
@@ -54,7 +54,7 @@ export function TerrenoTableRow({ terreno, selected, onSelect, onHover }: Terren
       </td>
       <td className="whitespace-nowrap px-1.5 py-3 text-right">
         <span className="block font-mono text-xs tabular-nums text-taupe">
-          {terreno.areaTotal} m²
+          {displayArea(terreno.areaTotal)}
         </span>
         {dim ? (
           <span className="block font-mono text-[10px] tabular-nums text-taupe/70">{dim}</span>

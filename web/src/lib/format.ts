@@ -24,6 +24,14 @@ export function formatArea(squareMeters: number): string {
   return `${numberFormatter.format(squareMeters)} m²`
 }
 
+// Rótulo quando o terreno não tem nenhuma medida de área informada
+// (todas opcionais — pode salvar sem medidas).
+export const AREA_UNKNOWN = '—'
+
+export function displayArea(squareMeters: number | undefined): string {
+  return squareMeters === undefined ? AREA_UNKNOWN : formatArea(squareMeters)
+}
+
 function compact(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(1).replace('.', ',')
 }
@@ -50,9 +58,10 @@ export function displayPriceShort(value: number | undefined): string {
 // nesses casos a UI mostra "—" e a ordenação manda pro fim.
 export function pricePerSquareMeter(
   preco: number | undefined,
-  areaTotal: number,
+  areaTotal: number | undefined,
 ): number | undefined {
-  if (preco === undefined || !Number.isFinite(areaTotal) || areaTotal <= 0) return undefined
+  if (preco === undefined || areaTotal === undefined) return undefined
+  if (!Number.isFinite(areaTotal) || areaTotal <= 0) return undefined
   return preco / areaTotal
 }
 

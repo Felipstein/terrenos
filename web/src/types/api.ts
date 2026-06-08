@@ -237,17 +237,17 @@ export interface components {
             /** @example -47.0608 */
             lng: number;
             /**
-             * @description m²
+             * @description m². Opcional — todas as medidas são opcionais; quando largura E comprimento existem, o backend deriva areaTotal delas.
              * @example 250
              */
-            areaTotal: number;
+            areaTotal?: number;
             /**
-             * @description metros
+             * @description metros (opcional)
              * @example 10
              */
             largura?: number;
             /**
-             * @description metros
+             * @description metros (opcional)
              * @example 25
              */
             comprimento?: number;

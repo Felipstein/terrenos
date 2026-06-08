@@ -23,7 +23,7 @@ type TerrenoFormValues = {
   preco?: number
   lat: number
   lng: number
-  areaTotal: number
+  areaTotal?: number
   largura?: number
   comprimento?: number
   link?: string
@@ -205,6 +205,7 @@ export function TerrenoForm({
       />
 
       <div>
+        <p className="mb-1.5 text-sm font-medium text-ink">Medidas (opcional)</p>
         <div className="grid grid-cols-3 gap-3">
           <TextField
             id="areaTotal"
@@ -229,7 +230,9 @@ export function TerrenoForm({
             onChange={handleAreaChange('comprimento')}
           />
         </div>
-        <p className="mt-1 text-xs text-taupe">Preencha 2 e o terceiro se completa.</p>
+        <p className="mt-1 text-xs text-taupe">
+          Tudo opcional. Preencha 2 e o terceiro se completa.
+        </p>
       </div>
 
       <TextField

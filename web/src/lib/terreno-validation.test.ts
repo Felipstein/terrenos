@@ -28,8 +28,15 @@ describe('terrenoSchema', () => {
     expect(terrenoSchema.safeParse({ ...base, preco: 0 }).success).toBe(false)
   })
 
-  it('rejeita área <= 0', () => {
+  it('rejeita área <= 0 quando informada', () => {
     expect(terrenoSchema.safeParse({ ...base, areaTotal: 0 }).success).toBe(false)
+  })
+
+  it('aceita terreno sem nenhuma medida (área/largura/comprimento todas opcionais)', () => {
+    const { areaTotal, ...semArea } = base
+    void areaTotal
+    expect(terrenoSchema.safeParse(semArea).success).toBe(true)
+    expect(terrenoSchema.safeParse({ ...semArea, areaTotal: '' }).success).toBe(true)
   })
 
   it('rejeita link inválido', () => {

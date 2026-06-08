@@ -4,10 +4,6 @@ import { isValidWhatsapp } from './whatsapp'
 // Schema único de validação do terreno (fonte da verdade do form).
 // Usado com @hookform/resolvers (zodResolver). Ver skill `forms`.
 
-function requiredPositive(message: string) {
-  return z.coerce.number().refine((n) => Number.isFinite(n) && n > 0, message)
-}
-
 const optionalPositive = z.preprocess(
   (v) =>
     v === '' || v === undefined || v === null || (typeof v === 'number' && Number.isNaN(v))
@@ -34,7 +30,7 @@ export const terrenoSchema = z.object({
   preco: optionalPositive,
   lat: z.coerce.number().refine(Number.isFinite, 'Selecione o local no mapa'),
   lng: z.coerce.number().refine(Number.isFinite, 'Selecione o local no mapa'),
-  areaTotal: requiredPositive('Área deve ser maior que zero'),
+  areaTotal: optionalPositive,
   largura: optionalPositive,
   comprimento: optionalPositive,
   link: z.preprocess(
