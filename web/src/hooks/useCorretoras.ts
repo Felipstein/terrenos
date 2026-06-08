@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { Corretora } from '../types/corretora'
+import type { Corretora, CorretoraUpdateInput } from '../types/corretora'
 import { getCorretoraService } from '../services/corretora-service'
 
 export type UseCorretoras = {
   corretoras: Corretora[]
   refresh: () => Promise<void>
+  update: (slug: string, input: CorretoraUpdateInput) => Promise<Corretora>
 }
 
 export function useCorretoras(): UseCorretoras {
@@ -21,9 +22,16 @@ export function useCorretoras(): UseCorretoras {
       })
   }, [])
 
+  // Edita uma corretora e reconcilia a lista em memória (sem refetch).
+  const update = useCallback(async (slug: string, input: CorretoraUpdateInput) => {
+    const updated = await getCorretoraService().update(slug, input)
+    setCorretoras((prev) => prev.map((c) => (c.slug === updated.slug ? updated : c)))
+    return updated
+  }, [])
+
   useEffect(() => {
     void refresh()
   }, [refresh])
 
-  return { corretoras, refresh }
+  return { corretoras, refresh, update }
 }

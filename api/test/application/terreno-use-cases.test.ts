@@ -126,4 +126,27 @@ describe('Terreno + Corretora', () => {
     expect(updated.corretora).toBe('Corretora Nova')
     expect(await corretoras.list(ACCOUNT)).toHaveLength(2)
   })
+
+  it('faz upsert do telefone da corretora ao criar terreno (não grava no terreno)', async () => {
+    const terreno = await new CreateTerreno(repository, corretoras).execute(
+      ACCOUNT,
+      { ...input, corretora: 'Imobiliária Silva' },
+      '(45) 3333-0000',
+    )
+    expect(terreno).not.toHaveProperty('corretoraTelefone')
+    expect(await corretoras.list(ACCOUNT)).toEqual([
+      { slug: 'imobiliaria-silva', name: 'Imobiliária Silva', phone: '(45) 3333-0000' },
+    ])
+  })
+
+  it('atualiza o telefone de uma corretora existente ao salvar terreno', async () => {
+    const create = new CreateTerreno(repository, corretoras)
+    await create.execute(ACCOUNT, { ...input, corretora: 'Imobiliária Silva' })
+    await create.execute(ACCOUNT, { ...input, corretora: 'imobiliaria silva' }, '(45) 99999-0000')
+    expect(await corretoras.get(ACCOUNT, 'imobiliaria-silva')).toEqual({
+      slug: 'imobiliaria-silva',
+      name: 'Imobiliária Silva', // nome canônico preservado
+      phone: '(45) 99999-0000',
+    })
+  })
 })

@@ -4,6 +4,7 @@ import { useEffect, type ChangeEvent } from 'react'
 import type { Terreno, TerrenoInput } from '../../types/terreno'
 import { terrenoSchema } from '../../lib/terreno-validation'
 import { recalcArea, type AreaField } from '../../lib/area'
+import { corretoraPhone, nextCorretoraTelefone } from '../../lib/corretora-autofill'
 import { TextField } from '../../components/TextField/TextField'
 import { CurrencyField } from '../../components/CurrencyField/CurrencyField'
 import { Combobox } from '../../components/Combobox/Combobox'
@@ -28,6 +29,7 @@ type TerrenoFormValues = {
   link?: string
   whatsapp?: string
   corretora?: string
+  corretoraTelefone?: string
 }
 
 type TerrenoFormProps = {
@@ -43,7 +45,12 @@ function numU(value: number | undefined): number | undefined {
   return typeof value === 'number' && !Number.isNaN(value) ? value : undefined
 }
 
-function toDefaults(initial: Terreno | null, lat: number, lng: number): Partial<TerrenoFormValues> {
+function toDefaults(
+  initial: Terreno | null,
+  lat: number,
+  lng: number,
+  corretoras: Corretora[],
+): Partial<TerrenoFormValues> {
   if (!initial) return { lat, lng, isCorner: false }
   return {
     rua: initial.rua,
@@ -57,6 +64,8 @@ function toDefaults(initial: Terreno | null, lat: number, lng: number): Partial<
     link: initial.link,
     whatsapp: initial.whatsapp,
     corretora: initial.corretora,
+    // Telefone da corretora vem da entidade Corretora (não do terreno).
+    corretoraTelefone: corretoraPhone(corretoras, initial.corretora),
   }
 }
 
@@ -78,7 +87,7 @@ export function TerrenoForm({
     formState: { errors, isSubmitting, dirtyFields },
   } = useForm<TerrenoFormValues>({
     resolver: zodResolver(terrenoSchema) as Resolver<TerrenoFormValues>,
-    defaultValues: toDefaults(initial, centerLat, centerLng),
+    defaultValues: toDefaults(initial, centerLat, centerLng, corretoras),
   })
 
   const lat = watch('lat')
@@ -94,6 +103,18 @@ export function TerrenoForm({
   useEffect(() => {
     onDirtyChange?.(dirty)
   }, [dirty, onDirtyChange])
+
+  // Ao escolher/digitar a corretora: grava o nome e reconcilia o telefone com a
+  // corretora ESCOLHIDA. Se ela tem telefone conhecido, autopreenche; se não tem
+  // (ou é nome novo), LIMPA — pra não vazar o telefone da corretora anterior.
+  // Continua editável: o usuário pode digitar por cima.
+  function handleCorretoraChange(next: string) {
+    setValue('corretora', next, { shouldValidate: true, shouldDirty: true })
+    setValue('corretoraTelefone', nextCorretoraTelefone(corretoras, next), {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+  }
 
   async function applyPoint(nextLat: number, nextLng: number) {
     setValue('lat', nextLat, { shouldValidate: true, shouldDirty: true })
@@ -151,11 +172,20 @@ export function TerrenoForm({
         label="Corretora (opcional)"
         value={watch('corretora') ?? ''}
         options={corretoras.map((c) => ({ value: c.name, label: c.name }))}
-        onChange={(next) => setValue('corretora', next, { shouldValidate: true, shouldDirty: true })}
+        onChange={handleCorretoraChange}
         allowFreeText
         placeholder="Digite ou escolha uma corretora"
         emptyLabel="Nenhuma corretora ainda — digite pra cadastrar"
         error={errors.corretora?.message}
+      />
+
+      <TextField
+        id="corretoraTelefone"
+        label="Telefone da corretora (opcional)"
+        placeholder="(45) 3333-0000"
+        inputMode="tel"
+        error={errors.corretoraTelefone?.message}
+        {...register('corretoraTelefone')}
       />
 
       <Switch

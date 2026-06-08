@@ -167,6 +167,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/corretoras/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Atualiza uma corretora existente (nome e/ou telefone). Útil pra completar dados de corretoras antigas ou auto-criadas ao salvar um terreno. Identificada pelo `slug` (chave de dedup). */
+        put: operations["updateCorretora"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -246,6 +263,11 @@ export interface components {
              * @example Imobiliária Silva
              */
             corretora?: string;
+            /**
+             * @description Telefone da CORRETORA (opcional, texto livre). Não fica gravado no terreno: o backend faz upsert no telefone da corretora (por slug) quando o terreno é salvo com nome de corretora. Distinto de `whatsapp`, que é o contato do anúncio.
+             * @example (45) 3333-0000
+             */
+            corretoraTelefone?: string;
             imagens?: components["schemas"]["TerrenoImagem"][];
             /** @description id da imagem principal (aparece no pin/tabela/detalhe) */
             principalId?: string;
@@ -261,6 +283,21 @@ export interface components {
             slug: string;
             /** @example Imobiliária Silva */
             name: string;
+            /**
+             * @description Telefone da corretora (opcional, texto livre). Autopreenchido no form de terreno ao escolher a corretora; editável.
+             * @example (45) 3333-0000
+             */
+            phone?: string;
+        };
+        /** @description Campos editáveis de uma corretora. Todos opcionais (atualização parcial). */
+        CorretoraUpdateInput: {
+            /** @example Imobiliária Silva */
+            name?: string;
+            /**
+             * @description Telefone da corretora. String vazia limpa o telefone.
+             * @example (45) 3333-0000
+             */
+            phone?: string;
         };
         LoginInput: {
             /** @description identificador de login do usuário; carrega o e-mail. */
@@ -629,6 +666,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Corretora"][];
+                };
+            };
+        };
+    };
+    updateCorretora: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CorretoraUpdateInput"];
+            };
+        };
+        responses: {
+            /** @description Corretora atualizada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Corretora"];
+                };
+            };
+            /** @description Corretora não encontrada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
         };

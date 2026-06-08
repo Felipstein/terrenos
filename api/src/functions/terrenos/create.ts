@@ -18,7 +18,7 @@ const useCase = new CreateTerreno(
 /** `POST /terrenos` — protegida. Cria um terreno. */
 export const handler = makeHandler(async (event: APIGatewayProxyEventV2WithJWTAuthorizer) => {
   const accountId = getAccountId(event)
-  const input = parseBody(event, terrenoInputSchema)
-  const terreno = await useCase.execute(accountId, input)
+  const { corretoraTelefone, ...input } = parseBody(event, terrenoInputSchema)
+  const terreno = await useCase.execute(accountId, input, corretoraTelefone)
   return created(terreno)
 })

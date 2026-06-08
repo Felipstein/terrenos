@@ -31,7 +31,8 @@ Campos canônicos (independe de onde os dados ficam guardados).
 | `comprimento` | number | não | metros |
 | `link` | string | não | anúncio do corretor |
 | `whatsapp` | string | não | telefone/WhatsApp do contato; texto livre. Deep-link `wa.me` via `lib/whatsapp.ts` (`buildWhatsappUrl`, prefixa DDI 55 se faltar). Botão "Chamar no WhatsApp" no detalhe quando preenchido |
-| `corretora` | string | não | no Terreno é só o **nome canônico** (string; 1º cadastro vence). A entidade `Corretora { slug, name }` é deduplicada por **slug** (chave `CORRETORA#<slug>` no single-table); o slug é gerado/usado no backend e o front filtra/exibe por **nome**. Nasce ao salvar terreno; `GET /corretoras` alimenta autocomplete (`Combobox`) e filtro. Nome pequeno no pin e no detalhe |
+| `corretora` | string | não | no Terreno é só o **nome canônico** (string; 1º cadastro vence). A entidade `Corretora { slug, name, phone? }` é deduplicada por **slug** (chave `CORRETORA#<slug>` no single-table); o slug é gerado/usado no backend e o front filtra/exibe por **nome**. Nasce ao salvar terreno; `GET /corretoras` alimenta autocomplete (`Combobox`) e filtro; `PUT /corretoras/{slug}` edita nome/telefone (UI em `features/corretoras/`). Nome pequeno no pin e no detalhe |
+| `corretoraTelefone` | string | não | **telefone da CORRETORA** (distinto de `whatsapp`, que é o contato do anúncio). **Não é persistido no terreno**: é campo de transporte no `TerrenoInput` — ao salvar, o backend faz **upsert** no `phone` da corretora (por slug). No form, ao escolher uma corretora existente, autopreenche o telefone dela (editável). |
 | `imagens` | `TerrenoImagem[]` | não | `{ id, url }` — opcional |
 | `principalId` | string | não | id da imagem principal (pin, hover da tabela, detalhe) |
 
